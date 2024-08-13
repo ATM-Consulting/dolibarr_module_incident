@@ -1,0 +1,61 @@
+# Copyright (C) ---Put here your own copyright and developer email---
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Paramètres
+#
+IncidentSetup = Paramétres incidents
+Settings = Paramétres
+IncidentSetupPage = Incident page paramétres
+
+
+#
+# Incidents
+#
+tabIncident = Liste incident
+Incidents = Incidents
+userValid = Utilisateur valideur
+correctiveElement = Element correctif
+typeOfIncident = Type d'incidents
+ClosedIncident = Terminer
+Reopen = Ré ouvrir
+finish = Terminé
+originElement = Elément lié
+incidentLeftTitle = Incidents
+incidentList = Liste
+incidentCreate = Nouvel incident
+ReadIncident = Lire fiches incidents
+CreateUpdateIncident = Créer / modifier les fiches incidents
+DeleteIncident = Supprimer les fiches incidents
+FinishIncident = Mettre en status "terminé" les fiches incidents sans être utilisateur valideur
+incidentListDraft = Liste des brouillons
+incidentListValidated = Liste des validés
+incidentListCancelled = Liste des annulés
+incidentListFinished = Liste des terminés
+propal = Devis
+commande = Commande
+facture = Facture
+expedition = Expedition
+shipping = Expedition
+reception = Réception
+supplier_proposal = Devis fourn
+order_supplier = Commande fourn
+stock = Entrepôt
+product = Produit
+agefodd_agsession = Session
+project = Projet
+ticket = Ticket
+elementType = Élement
+invoice_supplier = Facture Fourn

@@ -340,9 +340,24 @@ class modIncident extends DolibarrModules
 		$this->menu[$r++] = array(
 			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentCreate',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_card.php?action=create',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>'incidentList',
 			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
-			'mainmenu'=>'incident',
+			'mainmenu'=>'project',
 			'leftmenu'=>'incident',
 			'url'=>'/incident/incident_list.php',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -355,11 +370,11 @@ class modIncident extends DolibarrModules
 		$this->menu[$r++] = array(
 			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>'incidentCreate',
+			'titre'=>'incidentListDraft',
 			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
-			'mainmenu'=>'incident',
-			'leftmenu'=>'incident',
-			'url'=>'/incident/incident_card.php?action=create',
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=0',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
 			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
@@ -367,6 +382,52 @@ class modIncident extends DolibarrModules
 			'target'=>'',
 			'user'=>2,
 		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListValidated',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=1',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListCancelled',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=2',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListFinished',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=9',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+
 		/* END MODULEBUILDER TOPMENU */
 
 		/* BEGIN MODULEBUILDER LEFTMENU INCIDENT */
