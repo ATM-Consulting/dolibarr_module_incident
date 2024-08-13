@@ -65,46 +65,6 @@ class Incident extends CommonObject
 	const STATUS_CANCELLED= 2;
 	const STATUS_FINISH = 9;
 
-	/**
-	 *  'type' field format:
-	 *  	'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
-	 *  	'select' (list of values are in 'options'. for integer list of values are in 'arrayofkeyval'),
-	 *  	'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter[:CategoryIdType[:CategoryIdList[:SortField]]]]]]',
-	 *  	'chkbxlst:...',
-	 *  	'varchar(x)',
-	 *  	'text', 'text:none', 'html',
-	 *   	'double(24,8)', 'real', 'price', 'stock',
-	 *  	'date', 'datetime', 'timestamp', 'duration',
-	 *  	'boolean', 'checkbox', 'radio', 'array',
-	 *  	'mail', 'phone', 'url', 'password', 'ip'
-	 *		Note: Filter must be a Dolibarr Universal Filter syntax string. Example: "(t.ref:like:'SO-%') or (t.date_creation:<:'20160101') or (t.status:!=:0) or (t.nature:is:NULL)"
-	 *  'label' the translation key.
-	 *  'alias' the alias used into some old hard coded SQL requests
-	 *  'picto' is code of a picto to show before value in forms
-	 *  'enabled' is a condition when the field must be managed (Example: 1 or 'getDolGlobalInt("MY_SETUP_PARAM")' or 'isModEnabled("multicurrency")' ...)
-	 *  'position' is the sort order of field.
-	 *  'notnull' is set to 1 if not null in database. Set to -1 if we must set data to null if empty ('' or 0).
-	 *  'visible' says if field is visible in list (Examples: 0=Not visible, 1=Visible on list and create/update/view forms, 2=Visible on list only, 3=Visible on create/update/view form only (not list), 4=Visible on list and update/view form only (not create). 5=Visible on list and view only (not create/not update). Using a negative value means field is not shown by default on list but can be selected for viewing)
-	 *  'noteditable' says if field is not editable (1 or 0)
-	 *  'alwayseditable' says if field can be modified also when status is not draft ('1' or '0')
-	 *  'default' is a default value for creation (can still be overwrote by the Setup of Default Values if field is editable in creation form). Note: If default is set to '(PROV)' and field is 'ref', the default value will be set to '(PROVid)' where id is rowid when a new record is created.
-	 *  'index' if we want an index in database.
-	 *  'foreignkey'=>'tablename.field' if the field is a foreign key (it is recommended to name the field fk_...).
-	 *  'searchall' is 1 if we want to search in this field when making a search from the quick search button.
-	 *  'isameasure' must be set to 1 or 2 if field can be used for measure. Field type must be summable like integer or double(24,8). Use 1 in most cases, or 2 if you don't want to see the column total into list (for example for percentage)
-	 *  'css' and 'cssview' and 'csslist' is the CSS style to use on field. 'css' is used in creation and update. 'cssview' is used in view mode. 'csslist' is used for columns in lists. For example: 'css'=>'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview'=>'wordbreak', 'csslist'=>'tdoverflowmax200'
-	 *  'help' and 'helplist' is a 'TranslationString' to use to show a tooltip on field. You can also use 'TranslationString:keyfortooltiponlick' for a tooltip on click.
-	 *  'showoncombobox' if value of the field must be visible into the label of the combobox that list record
-	 *  'disabled' is 1 if we want to have the field locked by a 'disabled' attribute. In most cases, this is never set into the definition of $fields into class, but is set dynamically by some part of code.
-	 *  'arrayofkeyval' to set a list of values if type is a list of predefined values. For example: array("0"=>"Draft","1"=>"Active","-1"=>"Cancel"). Note that type can be 'integer' or 'varchar'
-	 *  'autofocusoncreate' to have field having the focus on a create form. Only 1 field should have this property set to 1.
-	 *  'comment' is not used. You can store here any text of your choice. It is not used by application.
-	 *	'validate' is 1 if you need to validate the field with $this->validateField(). Need MAIN_ACTIVATE_VALIDATION_RESULT.
-	 *  'copytoclipboard' is 1 or 2 to allow to add a picto to copy value into clipboard (1=picto after label, 2=picto after value)
-	 *
-	 *  Note: To have value dynamic, you can set value to 0 in definition and edit the value on the fly into the constructor.
-	 */
-
 	// BEGIN MODULEBUILDER PROPERTIES
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -127,6 +87,7 @@ class Incident extends CommonObject
 		"fk_element" => array("type"=>"integer", "label"=>"originElement", "enabled"=>"1", 'position'=>513, 'notnull'=>0, "visible"=>"5",),
 		"user_valid" => array("type"=>"integer:user:user/class/user.class.php", "label"=>"userValid", 'notnull'=>1, "enabled"=>"1", 'position'=>514, "visible"=>"1",),
 	);
+
 	public $rowid;
 	public $ref;
 	public $label;
@@ -144,43 +105,6 @@ class Incident extends CommonObject
 	public $fk_element;
 	public $user_valid;
 	// END MODULEBUILDER PROPERTIES
-
-
-	// If this object has a subtable with lines
-
-	// /**
-	//  * @var string    Name of subtable line
-	//  */
-	// public $table_element_line = 'incident_incidentline';
-
-	// /**
-	//  * @var string    Field with ID of parent key if this object has a parent
-	//  */
-	// public $fk_element = 'fk_incident';
-
-	// /**
-	//  * @var string    Name of subtable class that manage subtable lines
-	//  */
-	// public $class_element_line = 'Incidentline';
-
-	// /**
-	//  * @var array	List of child tables. To test if we can delete object.
-	//  */
-	// protected $childtables = array('mychildtable' => array('name'=>'Incident', 'fk_element'=>'fk_incident'));
-
-	// /**
-	//  * @var array    List of child tables. To know object to delete on cascade.
-	//  *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
-	//  *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
-	//  */
-	// protected $childtablesoncascade = array('incident_incidentdet');
-
-	// /**
-	//  * @var IncidentLine[]     Array of subtable lines
-	//  */
-	// public $lines = array();
-
-
 
 	/**
 	 * Constructor
@@ -201,12 +125,6 @@ class Incident extends CommonObject
 		if (!isModEnabled('multicompany') && isset($this->fields['entity'])) {
 			$this->fields['entity']['enabled'] = 0;
 		}
-
-		// Example to show how to set values of fields definition dynamically
-		/*if ($user->hasRight('incident', 'incident', 'read')) {
-			$this->fields['myfield']['visible'] = 1;
-			$this->fields['myfield']['noteditable'] = 0;
-		}*/
 
 		// Unset fields that are disabled
 		foreach ($this->fields as $key => $val) {
@@ -234,7 +152,7 @@ class Incident extends CommonObject
 	 * @param  int 	$notrigger 0=launch triggers after, 1=disable triggers
 	 * @return int             Return integer <0 if KO, Id of created object if OK
 	 */
-	public function create(User $user, $notrigger = 0)
+	public function create(User $user, int $notrigger = 0) :int
 	{
 		$originId = GETPOST('originId', 'alphanohtml');
 		$type = 	GETPOST('type', 'alphanohtml');
@@ -259,7 +177,7 @@ class Incident extends CommonObject
 	 * @param  mixed   	$morecss        	Value for CSS to use (Old usage: May also be a numeric to define a size).
 	 * @return string
 	 */
-	public function showOutputField($val, $key, $value, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = '')
+	public function showOutputField($val, $key, $value, $moreparam = '', $keysuffix = '',  $keyprefix = '',  $morecss = '') :string
 	{
 		global $conf, $langs, $form;
 
@@ -333,7 +251,6 @@ class Incident extends CommonObject
 		// If field is a computed field, value must become result of compute
 		if ($computed) {
 			// Make the eval of compute string
-			//var_dump($computed);
 			$value = dol_eval($computed, 1, 0, '2');
 		}
 
@@ -633,8 +550,6 @@ class Incident extends CommonObject
 			// only if something to display (perf)
 			if ($value) {
 				$param_list = array_keys($param['options']);
-				// Example: $param_list='ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]'
-				// Example: $param_list='ObjectClass:PathToClass:#getnomurlparam1=-1#getnomurlparam2=customer'
 
 				$InfoFieldList = explode(":", $param_list[0]);
 
@@ -708,7 +623,7 @@ class Incident extends CommonObject
 			}
 		} elseif ($type == 'password') {
 			$value = '<span class="opacitymedium">'.$langs->trans("Encrypted").'</span>';
-			//$value = preg_replace('/./i', '*', $value);
+
 		} elseif ($type == 'array') {
 			if (is_array($value)) {
 				$value = implode('<br>', $value);
@@ -733,7 +648,7 @@ class Incident extends CommonObject
 	 * @param  	int 	$fromid     Id of object to clone
 	 * @return 	mixed 				New object created, <0 if KO
 	 */
-	public function createFromClone(User $user, $fromid)
+	public function createFromClone(User $user, int $fromid)
 	{
 		global $langs, $extrafields;
 		$error = 0;
@@ -749,10 +664,6 @@ class Incident extends CommonObject
 		if ($result > 0 && !empty($object->table_element_line)) {
 			$object->fetchLines();
 		}
-
-		// get lines so they will be clone
-		//foreach($this->lines as $line)
-		//	$line->fetch_optionals();
 
 		// Reset some properties
 		unset($object->id);
@@ -832,7 +743,7 @@ class Incident extends CommonObject
 	 * @param	int		$nolines		0=Default to load extrafields, 1=No extrafields
 	 * @return 	int     				Return integer <0 if KO, 0 if not found, >0 if OK
 	 */
-	public function fetch($id, $ref = null, $noextrafields = 0, $nolines = 0)
+	public function fetch(int $id, string $ref = null, int $noextrafields = 0, int $nolines = 0) :int
 	{
 		$result = $this->fetchCommon($id, $ref, '', $noextrafields);
 		if ($result > 0 && !empty($this->table_element_line) && empty($nolines)) {
@@ -847,7 +758,7 @@ class Incident extends CommonObject
 	 * @param	int		$noextrafields	0=Default to load extrafields, 1=No extrafields
 	 * @return 	int         			Return integer <0 if KO, 0 if not found, >0 if OK
 	 */
-	public function fetchLines($noextrafields = 0)
+	public function fetchLines(int $noextrafields = 0):int
 	{
 		$this->lines = array();
 
@@ -870,7 +781,7 @@ class Incident extends CommonObject
 	 * @param  string      	$filtermode   	No more used
 	 * @return array|int                 	int <0 if KO, array of pages if OK
 	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 1000, $offset = 0, string $filter = '', $filtermode = 'AND')
+	public function fetchAll(string $sortorder = '', string $sortfield = '', int $limit = 1000, int $offset = 0, string $filter = '', string $filtermode = 'AND')
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -940,7 +851,7 @@ class Incident extends CommonObject
 	 * @param  int 	$notrigger 0=launch triggers after, 1=disable triggers
 	 * @return int             Return integer <0 if KO, >0 if OK
 	 */
-	public function update(User $user, $notrigger = 0)
+	public function update(User $user, int $notrigger = 0):int
 	{
 		return $this->updateCommon($user, $notrigger);
 	}
@@ -952,7 +863,7 @@ class Incident extends CommonObject
 	 * @param int 	$notrigger  0=launch triggers, 1=disable triggers
 	 * @return int             	Return integer <0 if KO, >0 if OK
 	 */
-	public function delete(User $user, $notrigger = 0)
+	public function delete(User $user, int $notrigger = 0):int
 	{
 		return $this->deleteCommon($user, $notrigger);
 		//return $this->deleteCommon($user, $notrigger, 1);
@@ -966,7 +877,7 @@ class Incident extends CommonObject
 	 *  @param 	int 	$notrigger  0=launch triggers after, 1=disable triggers
 	 *  @return int         		>0 if OK, <0 if KO
 	 */
-	public function deleteLine(User $user, $idline, $notrigger = 0)
+	public function deleteLine(User $user, int $idline, int $notrigger = 0):int
 	{
 		if ($this->status < 0) {
 			$this->error = 'ErrorDeleteLineNotAllowedByObjectStatus';
@@ -984,7 +895,7 @@ class Incident extends CommonObject
 	 *  @param		int		$notrigger		1=Does not execute triggers, 0= execute triggers
 	 *	@return  	int						Return integer <=0 if OK, 0=Nothing done, >0 if KO
 	 */
-	public function validate($user, $notrigger = 0)
+	public function validate(User $user, int $notrigger = 0):int
 	{
 		global $conf;
 
@@ -1118,7 +1029,7 @@ class Incident extends CommonObject
 	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
 	 *	@return	int						Return integer <0 if KO, >0 if OK
 	 */
-	public function setDraft($user, $notrigger = 0)
+	public function setDraft(User $user, int $notrigger = 0):int
 	{
 		// Protection
 		if ($this->status <= self::STATUS_DRAFT) {
@@ -1142,7 +1053,7 @@ class Incident extends CommonObject
 	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
 	 *	@return	int						Return integer <0 if KO, 0=Nothing done, >0 if OK
 	 */
-	public function cancel($user, $notrigger = 0)
+	public function cancel(User $user, int $notrigger = 0):int
 	{
 		// Protection
 		if ($this->status != self::STATUS_VALIDATED) {
@@ -1166,7 +1077,7 @@ class Incident extends CommonObject
 	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
 	 *	@return	int						Return integer <0 if KO, 0=Nothing done, >0 if OK
 	 */
-	public function reopen($user, $notrigger = 0)
+	public function reopen(User $user, int $notrigger = 0):int
 	{
 		// Protection
 		if ($this->status == self::STATUS_VALIDATED) {
@@ -1190,7 +1101,7 @@ class Incident extends CommonObject
 	 * @since 	v18
 	 * @return 	array
 	 */
-	public function getTooltipContentArray($params)
+	public function getTooltipContentArray($params):array
 	{
 		global $langs;
 
@@ -1223,7 +1134,7 @@ class Incident extends CommonObject
 	 *  @param  int     $save_lastsearch_value      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *  @return	string                              String with URL
 	 */
-	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
+	public function getNomUrl(int $withpicto = 0, string $option = '', int $notooltip = 0, string $morecss = '', int $save_lastsearch_value = -1):string
 	{
 		global $conf, $langs, $hookmanager;
 
@@ -1342,7 +1253,7 @@ class Incident extends CommonObject
 	 *  @param		array		$arraydata				Array of data
 	 *  @return		string								HTML Code for Kanban thumb.
 	 */
-	public function getKanbanView($option = '', $arraydata = null)
+	public function getKanbanView(string $option = '', $arraydata = null) :string
 	{
 		global $conf, $langs;
 
@@ -1384,7 +1295,7 @@ class Incident extends CommonObject
 	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 *  @return	string 			       Label of status
 	 */
-	public function getLabelStatus($mode = 0)
+	public function getLabelStatus(int $mode = 0):string
 	{
 		return $this->LibStatut($this->status, $mode);
 	}
@@ -1395,7 +1306,7 @@ class Incident extends CommonObject
 	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 *  @return	string 			       Label of status
 	 */
-	public function getLibStatut($mode = 0)
+	public function getLibStatut(int $mode = 0):string
 	{
 		return $this->LibStatut($this->status, $mode);
 	}
@@ -1408,7 +1319,7 @@ class Incident extends CommonObject
 	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 *  @return string 			       Label of status
 	 */
-	public function LibStatut($status, $mode = 0)
+	public function LibStatut(int $status, int $mode = 0):string
 	{
 		// phpcs:enable
 		if (is_null($status)) {
@@ -1441,7 +1352,7 @@ class Incident extends CommonObject
 	 *	@param  int		$id       Id of object
 	 *	@return	void
 	 */
-	public function info($id)
+	public function info(int $id):void
 	{
 		$sql = "SELECT rowid,";
 		$sql .= " date_creation as datec, tms as datem";
@@ -1495,7 +1406,7 @@ class Incident extends CommonObject
 	 *
 	 * @return int
 	 */
-	public function initAsSpecimen()
+	public function initAsSpecimen():int
 	{
 		// Set here init that are not commonf fields
 		// $this->property1 = ...
@@ -1530,7 +1441,7 @@ class Incident extends CommonObject
 	 *
 	 *  @return string      		Object free reference
 	 */
-	public function getNextNumRef()
+	public function getNextNumRef():string
 	{
 		global $langs, $conf;
 		$langs->load("incident@incident");
@@ -1587,7 +1498,7 @@ class Incident extends CommonObject
 	 *  @param      null|array  $moreparams     Array to provide more information
 	 *  @return     int         				0 if KO, 1 if OK
 	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
+	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null):int
 	{
 		global $langs;
 
@@ -1613,90 +1524,5 @@ class Incident extends CommonObject
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Return validation test result for a field.
-	 * Need MAIN_ACTIVATE_VALIDATION_RESULT to be called.
-	 *
-	 * @param  array   $fields	       		Array of properties of field to show
-	 * @param  string  $fieldKey            Key of attribute
-	 * @param  string  $fieldValue          value of attribute
-	 * @return bool 						Return false if fail, true on success, set $this->error for error message
-	 */
-	public function validateField($fields, $fieldKey, $fieldValue)
-	{
-		// Add your own validation rules here.
-		// ...
-
-		return parent::validateField($fields, $fieldKey, $fieldValue);
-	}
-
-	/**
-	 * Action executed by scheduler
-	 * CAN BE A CRON TASK. In such a case, parameters come from the schedule job setup field 'Parameters'
-	 * Use public function doScheduledJob($param1, $param2, ...) to get parameters
-	 *
-	 * @return	int			0 if OK, <>0 if KO (this function is used also by cron so only 0 is OK)
-	 */
-	public function doScheduledJob()
-	{
-		//global $conf, $langs;
-
-		//$conf->global->SYSLOG_FILE = 'DOL_DATA_ROOT/dolibarr_mydedicatedlogfile.log';
-
-		$error = 0;
-		$this->output = '';
-		$this->error = '';
-
-		dol_syslog(__METHOD__." start", LOG_INFO);
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// ...
-
-		$this->db->commit();
-
-		dol_syslog(__METHOD__." end", LOG_INFO);
-
-		return $error;
-	}
-}
-
-
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
-
-/**
- * Class IncidentLine. You can also remove this and generate a CRUD class for lines objects.
- */
-class IncidentLine extends CommonObjectLine
-{
-	// To complete with content of an object IncidentLine
-	// We should have a field rowid, fk_incident and position
-
-	/**
-	 * To overload
-	 * @see CommonObjectLine
-	 */
-	public $parent_element = '';		// Example: '' or 'incident'
-
-	/**
-	 * To overload
-	 * @see CommonObjectLine
-	 */
-	public $fk_parent_attribute = '';	// Example: '' or 'fk_incident'
-
-	/**
-	 * Constructor
-	 *
-	 * @param DoliDB $db Database handler
-	 */
-	public function __construct(DoliDB $db)
-	{
-		$this->db = $db;
-
-		$this->isextrafieldmanaged = 0;
 	}
 }

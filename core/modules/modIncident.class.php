@@ -332,7 +332,7 @@ class modIncident extends DolibarrModules
 			'url'=> '/incident/incident_list.php',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')", // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,
@@ -347,7 +347,7 @@ class modIncident extends DolibarrModules
 			'url'=>'/incident/incident_card.php?action=create',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,
@@ -362,7 +362,7 @@ class modIncident extends DolibarrModules
 			'url'=>'/incident/incident_list.php',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,
@@ -377,7 +377,7 @@ class modIncident extends DolibarrModules
 			'url'=>'/incident/incident_list.php?search_status=0',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,
@@ -392,7 +392,7 @@ class modIncident extends DolibarrModules
 			'url'=>'/incident/incident_list.php?search_status=1',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,
@@ -407,7 +407,7 @@ class modIncident extends DolibarrModules
 			'url'=>'/incident/incident_list.php?search_status=2',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,
@@ -422,7 +422,7 @@ class modIncident extends DolibarrModules
 			'url'=>'/incident/incident_list.php?search_status=9',
 			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>1000+$r,
-			'enabled'=>'$conf->incident->enabled',  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2,

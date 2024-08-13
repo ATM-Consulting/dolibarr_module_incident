@@ -57,7 +57,7 @@ class mod_incident_advanced extends ModeleNumRefIncident
 	 *  @param      Translate   $langs Translate Object
 	 *  @return     string             Text with description
 	 */
-	public function info($langs)
+	public function info($langs):string
 	{
 		global $db;
 
@@ -95,22 +95,14 @@ class mod_incident_advanced extends ModeleNumRefIncident
 	 *
 	 *  @return     string      Example
 	 */
-	public function getExample()
+	public function getExample():string
 	{
 		global $conf, $db, $langs, $mysoc;
 
 		$object = new Incident($db);
 		$object->initAsSpecimen();
 
-		/*$old_code_client = $mysoc->code_client;
-		$old_code_type = $mysoc->typent_code;
-		$mysoc->code_client = 'CCCCCCCCCC';
-		$mysoc->typent_code = 'TTTTTTTTTT';*/
-
 		$numExample = $this->getNextValue($object);
-
-		/*$mysoc->code_client = $old_code_client;
-		$mysoc->typent_code = $old_code_type;*/
 
 		if (!$numExample) {
 			$numExample = $langs->trans('NotConfigured');

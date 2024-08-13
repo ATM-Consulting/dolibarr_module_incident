@@ -27,7 +27,7 @@
  * @param	Incident	$object		Incident
  * @return 	array					Array of tabs
  */
-function incidentPrepareHead($object)
+function incidentPrepareHead(Incident $object):array
 {
 	global $db, $langs, $conf;
 
