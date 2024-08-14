@@ -67,5 +67,34 @@ class ActionsIncident extends CommonHookActions
 	{
 		$this->db = $db;
 	}
+	/**
+	 * count tab incident
+	 *
+	 * @param   array           $parameters     Array of parameters
+	 * @param   CommonObject    $object         The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
+	 * @param   string          $action         'add', 'update', 'view'
+	 * @param   Hookmanager     $hookmanager    hookmanager
+	 * @return  int                             Return integer <0 if KO,
+	 *                                          =0 if OK but we want to process standard actions too,
+	 *                                          >0 if OK and we want to replace standard actions.
+	 */
+	public function completeTabsHead(&$parameters, &$object, &$action, $hookmanager)
+	{
+		foreach ($parameters['head'] as $h => $headV) if(!empty($headV) && $headV[2] == 'incident'){
+			$nbRules = 0;
+			$sql = 'SELECT COUNT(*) as nbRules FROM ' . MAIN_DB_PREFIX.'incident_incident drule WHERE element_type = "'.$object->element.'" AND fk_element = ' . intval($object->id);
+			$resql = $object->db->query($sql);
+			if ($resql > 0){
+				$obj = $object->db->fetch_object($resql);
+				$nbRules = $obj->nbRules;
+			}
+			if ($nbRules > 0) {
+				$parameters['head'][$h][1] .= ' <span class="badge">' . ($nbRules) . '</span>';
+			}
+			break;
+
+		}
+		return 0;
+	}
 
 }

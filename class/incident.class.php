@@ -909,14 +909,6 @@ class Incident extends CommonObject
 			return 0;
 		}
 
-		/* if (! ((!getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident', 'incident', 'write'))
-		 || (getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident', 'incident_advance', 'validate')))
-		 {
-		 $this->error='NotEnoughPermissions';
-		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
-		 return -1;
-		 }*/
-
 		$now = dol_now();
 
 		$this->db->begin();
@@ -1036,13 +1028,6 @@ class Incident extends CommonObject
 			return 0;
 		}
 
-		/* if (! ((!getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident','write'))
-		 || (getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident','incident_advance','validate'))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
 		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'INCIDENT_INCIDENT_UNVALIDATE');
 	}
 
@@ -1060,13 +1045,6 @@ class Incident extends CommonObject
 			return 0;
 		}
 
-		/* if (! ((!getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident','write'))
-		 || (getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident','incident_advance','validate'))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
 		return $this->setStatusCommon($user, self::STATUS_FINISH, $notrigger, 'INCIDENT_INCIDENT_CANCEL');
 	}
 
@@ -1083,14 +1061,6 @@ class Incident extends CommonObject
 		if ($this->status == self::STATUS_VALIDATED) {
 			return 0;
 		}
-
-		/*if (! ((!getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident','write'))
-		 || (getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('incident','incident_advance','validate'))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
 		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'INCIDENT_INCIDENT_REOPEN');
 	}
 
@@ -1397,6 +1367,7 @@ class Incident extends CommonObject
 			$this->db->free($result);
 		} else {
 			dol_print_error($this->db);
+			dol_syslog(get_class($this)."::info ", LOG_ERR);
 		}
 	}
 
@@ -1474,11 +1445,12 @@ class Incident extends CommonObject
 					return $numref;
 				} else {
 					$this->error = $obj->error;
-					//dol_print_error($this->db,get_class($this)."::getNextNumRef ".$obj->error);
+					dol_syslog(get_class($this)."::getNextNumRef ".$this->error, LOG_ERR);
 					return "";
 				}
 			} else {
 				print $langs->trans("Error")." ".$langs->trans("ClassNotFound").' '.$classname;
+				dol_syslog(get_class($this)."::getNextNumRef ".$langs->trans("ClassNotFound"), LOG_ERR);
 				return "";
 			}
 		} else {

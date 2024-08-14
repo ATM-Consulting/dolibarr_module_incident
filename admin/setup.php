@@ -55,8 +55,8 @@ global $langs, $user;
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT."/core/lib/admin.lib.php";
-require_once '../lib/incident.lib.php';
-//require_once "../class/myclass.class.php";
+require_once '../lib/incident_incident.lib.php';
+
 
 // Translations
 $langs->loadLangs(array("admin", "incident@incident"));

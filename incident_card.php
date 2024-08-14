@@ -156,7 +156,7 @@ if (empty($reshook)) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
 				$backtopage = $backurlforlist;
 			} else {
-				$backtopage = dol_buildpath('/incident/incident_card.php', 1).'?id='.((!empty($id) && $id > 0) ? $id : '__ID__');
+				$backtopage = dol_buildpath('/incident/incident_card.php', 1).'?id='.((!empty($id) && $id > 0) ? $id : '__ID__'). (!empty($filterPage) ? '&originId='.$object->fk_element . '&type='. $object->element_type : '');
 			}
 		}
 	}
@@ -240,6 +240,7 @@ if ($action == 'create') {
 		}
 	}
 	print load_fiche_titre($title, '', 'object_'.$object->picto);
+
 	$backtopage = dol_buildpath('/incident/incident_card.php', 1).'?id='.((!empty($id) && $id > 0) ? $id : '__ID__') .'&originId='. $originId .'&type='.$type;
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
@@ -286,7 +287,6 @@ if ($action == 'create') {
 // Part to edit record
 if (($id || $ref) && $action == 'edit') {
 	print load_fiche_titre($langs->trans("Incident"), '', 'object_'.$object->picto);
-
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="update">';
@@ -466,7 +466,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 
 			// Modify
-			print dolGetButtonAction('', $langs->trans('Modify'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
+			if ($object->status == $object::STATUS_DRAFT){
+				print dolGetButtonAction('', $langs->trans('Modify'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken() . (!empty($filter) ? '&filterPage=1' : ''), '', $permissiontoadd);
+			}
 
 			// Validate
 			if ($object->status == $object::STATUS_DRAFT) {

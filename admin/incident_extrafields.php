@@ -56,7 +56,7 @@ if (!$res) {
 }
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
-require_once '../lib/incident.lib.php';
+require_once '../lib/incident_incident.lib.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array('incident@incident', 'admin'));
