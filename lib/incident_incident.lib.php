@@ -118,6 +118,10 @@ function incidentAdminPrepareHead():array
 	$head[$h][2] = 'about';
 	$h++;
 
+	$head[$h][0] = dol_buildpath("/incident/admin/incident_extrafields.php", 1);
+	$head[$h][1] = $langs->trans("ExtraFields");
+	$head[$h][2] = 'ExtraFields';
+	$h++;
 	complete_head_from_modules($conf, $langs, null, $head, $h, 'incident@incident');
 
 	complete_head_from_modules($conf, $langs, null, $head, $h, 'incident@incident', 'remove');

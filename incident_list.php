@@ -58,10 +58,7 @@ if (!$res) {
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
-// load module libraries
 require_once __DIR__.'/class/incident.class.php';
-// for other modules
-//dol_include_once('/othermodule/class/otherobject.class.php');
 
 // Load translation files required by the page
 $langs->loadLangs(array("incident@incident", "other"));
@@ -380,44 +377,28 @@ if ($num == 1 && getDolGlobalInt('MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE') && $sear
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss, '', 'mod-incident page-list bodyforlist');	// Can use also classforhorizontalscrolloftabs instead of bodyforlist for no horizontal scroll
 if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !empty($originId)){
 
-	$TTitleAndPictoTabAndDir = [
-		Propal::class => ['Proposal', 'propal', '/comm/'],
-		Commande::class => ['CustomerOrder', 'order'],
-		Facture::class => ['InvoiceCustomer', 'bill', '/compta/'],
-		Expedition::class => ['Shipment', 'Shipment'],
-		SupplierProposal::class => ['CommRequest', 'supplier_proposal'],
-		SupplierOrders::class => ['SupplierOrder', 'order', '/fourn/commande/'],
-		FactureFournisseur::class => ['invoice_supplier', 'supplier_invoice', '/fourn/facture/'],
-		Reception::class => ['Reception', 'dollyrevert'],
-		Product::class => ["CardProduct".$originObject->type], ($originObject->type == Product::TYPE_SERVICE ? 'service' : 'product'),
-		Entrepot::class => ['Warehouse', 'stock', '/product/stock/'],
-		Project::class => ['Project', ($originObject->public ? 'projectpub' : 'project')],
-		Ticket::class => ['Ticket', 'ticket'],
-		Agsession::class => ['AgfSessionDetail', 'calendarday'],
-	];
+	$rootElement = str_replace('class', '', $TElementProperties['classpath']);
+	$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
 
-	if (get_class($originObject) == Commande::class) $libObject = 'order';
-	elseif (get_class($originObject) == Facture::class) $libObject = 'invoice';
-	elseif (get_class($originObject) == Expedition::class) $libObject = 'sendings';
-	elseif (get_class($originObject) == CommandeFournisseur::class) $libObject = 'fourn';
-	elseif (get_class($originObject) == FactureFournisseur::class) $libObject = 'fourn';
-	elseif (get_class($originObject) == Agsession::class) $libObject = 'agefodd';
-	else $libObject = $type;
-	$libFile = '/core/lib/'.$libObject.'.lib.php';
+	$labelTab = $TObjectConfig[0];
+	$labelLib = $TObjectConfig[1];
+	$labelPicto = $TObjectConfig[2];
+	$rootReturnList = $TObjectConfig[3];
+	$labelLibFunc = $TObjectConfig[4];
+
+	$libFile = '/core/lib/'.$labelLib.'.lib.php';
 	$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
 	if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
-	elseif($libObject = 'agefodd') dol_include_once('agefodd/lib/'.$libObject.'.lib.php');
+	elseif($labelLib == 'agefodd') dol_include_once('agefodd/lib/'.$labelLib.'.lib.php');
 	else dol_include_once($libFile);
-	$nameLibFunc = $originObject->element;
-	if ($originObject->element == 'order_supplier') $nameLibFunc = 'ordersupplier';
-	if ($originObject->element == 'invoice_supplier') $nameLibFunc = 'facturefourn';
-	if ($originObject->element == 'agefodd_agsession') $nameLibFunc = 'session';
-	$prepareHeadFunction = $nameLibFunc .'_prepare_head';
+
+	$prepareHeadFunction = $labelLibFunc .'_prepare_head';
 	$res = function_exists( $prepareHeadFunction);
 	if ($res) {
 		$head = $prepareHeadFunction($originObject);
-		print dol_get_fiche_head($head, 'incident', $TTitleAndPictoTabAndDir[get_class($originObject)][0], -1, $TTitleAndPictoTabAndDir[get_class($originObject)][1]);
+		print dol_get_fiche_head($head, 'incident', $labelTab, -1, $labelPicto);
 	}
+
 	$originObject->fetch_thirdparty();
 	if ($originObject->thirdparty) {
 		$soc = $originObject->thirdparty;
@@ -425,22 +406,46 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 		$soc = new Societe($db);
 	}
 
-	$rootElement = str_replace('class', '', $TElementProperties['classpath']);
-	if ($type == 'order_supplier') $rootElement = 'fourn/commande/';
-	if ($type == 'invoice_supplier') $rootElement = 'fourn/facture/';
-	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$rootElement.'list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$rootReturnList.'list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 // Ref customer
-	$morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $originObject->ref_client, $originObject, 0, 'string', '', 0, 1);
-	$morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $originObject->ref_client, $originObject, 0, 'string'.(isset($conf->global->THIRDPARTY_REF_INPUT_SIZE) ? ':' . getDolGlobalString('THIRDPARTY_REF_INPUT_SIZE') : ''), '', null, null, '', 1);
+	if ($type == 'project'){
+		$morehtmlref .= dol_escape_htmltag($originObject->title);
+	}elseif ($type != 'agefodd_agsession' && $type != 'supplier_proposal' && $type != 'order_supplier' && $type != 'ticket'){
+		$morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $originObject->ref_client, $originObject, 0, 'string', '', 0, 1);
+		$morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $originObject->ref_client, $originObject, 0, 'string'.(isset($conf->global->THIRDPARTY_REF_INPUT_SIZE) ? ':' . getDolGlobalString('THIRDPARTY_REF_INPUT_SIZE') : ''), '', null, null, '', 1);
+	}elseif ($type == 'order_supplier') {
+		$morehtmlref .= $form->editfieldkey("RefSupplier", 'ref_supplier', $originObject->ref_supplier, $object, 0, 'string', '', 0, 1);
+		$morehtmlref .= $form->editfieldval("RefSupplier", 'ref_supplier', $originObject->ref_supplier, $object, 0, 'string', '', null, null, '', 1);
+	}elseif ($type == 'ticket') {
+		$morehtmlref .= $originObject->subject;
+		// Author
+		if ($originObject->fk_user_create > 0) {
+			$morehtmlref .= '<br>'.$langs->trans("CreatedBy").' : ';
+			$fuser = new User($db);
+			$fuser->fetch($originObject->fk_user_create);
+			$morehtmlref .= $fuser->getNomUrl(-1);
+		} elseif (!empty($originObject->email_msgid)) {
+			$morehtmlref .= '<br>'.$langs->trans("CreatedBy").' : ';
+			$morehtmlref .= img_picto('', 'email', 'class="paddingrightonly"');
+			$morehtmlref .= dol_escape_htmltag($originObject->origin_email).' <small class="hideonsmartphone opacitymedium">('.$form->textwithpicto($langs->trans("CreatedByEmailCollector"), $langs->trans("EmailMsgID").': '.$originObject->email_msgid).')</small>';
+		} elseif (!empty($originObject->origin_email)) {
+			$morehtmlref .= '<br>'.$langs->trans("CreatedBy").' : ';
+			$morehtmlref .= img_picto('', 'email', 'class="paddingrightonly"');
+			$morehtmlref .= dol_escape_htmltag($originObject->origin_email).' <small class="hideonsmartphone opacitymedium">('.$langs->trans("CreatedByPublicPortal").')</small>';
+		}
+	}
+	else $morehtmlref .= '';
 // Thirdparty
-	$morehtmlref .= '<br><span class="hideonsmartphone">'.$langs->trans('ThirdParty').' : </span>'.$soc->getNomUrl(1, 'customer');
-	if (!getDolGlobalString('MAIN_DISABLE_OTHER_LINK') && $soc->id > 0) {
-		$morehtmlref .= ' (<a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$soc->id.'&search_societe='.urlencode($soc->name).'">'.$langs->trans("OtherProposals").'</a>)';
+	if ($type != 'agefodd_agsession'){
+		$morehtmlref .= '<br><span class="hideonsmartphone">'.$langs->trans('ThirdParty').' : </span>'.$soc->getNomUrl(1, 'customer');
+		if (!getDolGlobalString('MAIN_DISABLE_OTHER_LINK') && $soc->id > 0) {
+			$morehtmlref .= ' (<a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$soc->id.'&search_societe='.urlencode($soc->name).'">'.$langs->trans("OtherProposals").'</a>)';
+		}
 	}
 // Project
-	if (isModEnabled('project')) {
+	if (isModEnabled('project') && $type != 'agefodd_agsession' && $type != 'project' && $type != 'supplier_proposal'  && $type != 'ticket') {
 		$langs->load("projects");
 		$morehtmlref .= '<br>';
 		if ($permissiontoadd) {
@@ -555,7 +560,7 @@ if ($search_all) {
 		$fieldstosearchall[$key] = $langs->trans($val);
 		$setupstring .= $key."=".$val.";";
 	}
-	print '<!-- Search done like if MYOBJECT_QUICKSEARCH_ON_FIELDS = '.$setupstring.' -->'."\n";
+	print '<!-- Search done like if INCIDENT_QUICKSEARCH_ON_FIELDS = '.$setupstring.' -->'."\n";
 	print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $search_all).join(', ', $fieldstosearchall).'</div>'."\n";
 }
 

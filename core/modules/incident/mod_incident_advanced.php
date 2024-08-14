@@ -26,8 +26,7 @@
  * \brief      File containing class for advanced numbering model of Incident
  */
 
-dol_include_once('/incident/core/modules/incident/modules_incident.php');
-
+require_once __DIR__ . '/modules_incident.php';
 
 /**
  *	Class to manage the Advanced numbering rule for Incident
@@ -69,7 +68,7 @@ class mod_incident_advanced extends ModeleNumRefIncident
 		$text .= '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';
 		$text .= '<input type="hidden" name="token" value="'.newToken().'">';
 		$text .= '<input type="hidden" name="action" value="updateMask">';
-		$text .= '<input type="hidden" name="maskconst" value="INCIDENT_MYOBJECT_ADVANCED_MASK">';
+		$text .= '<input type="hidden" name="maskconst" value="INCIDENT_INCIDENT_ADVANCED_MASK">';
 		$text .= '<table class="nobordernopadding centpercent">';
 
 		$tooltip = $langs->trans("GenericMaskCodes", $langs->transnoentities("Incident"), $langs->transnoentities("Incident"));
@@ -80,7 +79,7 @@ class mod_incident_advanced extends ModeleNumRefIncident
 
 		// Parametrage du prefix
 		$text .= '<tr><td>'.$langs->trans("Mask").':</td>';
-		$text .= '<td class="right">'.$form->textwithpicto('<input type="text" class="flat minwidth175" name="maskvalue" value="'.getDolGlobalString('INCIDENT_MYOBJECT_ADVANCED_MASK').'">', $tooltip, 1, 1).'</td>';
+		$text .= '<td class="right">'.$form->textwithpicto('<input type="text" class="flat minwidth175" name="maskvalue" value="'.getDolGlobalString('INCIDENT_INCIDENT_ADVANCED_MASK').'">', $tooltip, 1, 1).'</td>';
 		$text .= '<td class="left" rowspan="2">&nbsp; <input type="submit" class="button button-edit" value="'.$langs->trans("Modify").'" name="Button"></td>';
 		$text .= '</tr>';
 
@@ -123,7 +122,7 @@ class mod_incident_advanced extends ModeleNumRefIncident
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
 		// We get cursor rule
-		$mask = getDolGlobalString('INCIDENT_MYOBJECT_ADVANCED_MASK');
+		$mask = getDolGlobalString('INCIDENT_INCIDENT_ADVANCED_MASK');
 
 		if (!$mask) {
 			$this->error = 'NotConfigured';

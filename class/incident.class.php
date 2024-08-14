@@ -869,23 +869,6 @@ class Incident extends CommonObject
 		//return $this->deleteCommon($user, $notrigger, 1);
 	}
 
-	/**
-	 *  Delete a line of object in database
-	 *
-	 *	@param  User	$user       User that delete
-	 *  @param	int		$idline		Id of line to delete
-	 *  @param 	int 	$notrigger  0=launch triggers after, 1=disable triggers
-	 *  @return int         		>0 if OK, <0 if KO
-	 */
-	public function deleteLine(User $user, int $idline, int $notrigger = 0):int
-	{
-		if ($this->status < 0) {
-			$this->error = 'ErrorDeleteLineNotAllowedByObjectStatus';
-			return -2;
-		}
-
-		return $this->deleteLineCommon($user, $idline, $notrigger);
-	}
 
 
 	/**
@@ -900,7 +883,6 @@ class Incident extends CommonObject
 		global $conf;
 
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-
 		$error = 0;
 
 		// Protection
@@ -1387,27 +1369,6 @@ class Incident extends CommonObject
 	}
 
 	/**
-	 * 	Create an array of lines
-	 *
-	 * 	@return array|int		array of lines if OK, <0 if KO
-	 */
-	public function getLinesArray()
-	{
-		$this->lines = array();
-
-		$objectline = new IncidentLine($this->db);
-		$result = $objectline->fetchAll('ASC', 'position', 0, 0, '(fk_incident:=:'.((int) $this->id).')');
-
-		if (is_numeric($result)) {
-			$this->setErrorsFromObject($objectline);
-			return $result;
-		} else {
-			$this->lines = $result;
-			return $this->lines;
-		}
-	}
-
-	/**
 	 *  Returns the reference to the following non used object depending on the active numbering module.
 	 *
 	 *  @return string      		Object free reference
@@ -1497,4 +1458,41 @@ class Incident extends CommonObject
 
 		return $result;
 	}
+
+	/**
+	 * @param string $class
+	 * @param string $type
+	 * @param Object $originObject
+	 * @return array
+	 */
+	public  static function returnArrayObjectConfig(string $class, string $type, Object $originObject, $rootElement):array {
+
+		if ($type == 'order_supplier') $rootElement = 'fourn/commande/';
+		if ($type == 'invoice_supplier') $rootElement = 'fourn/facture/';
+
+
+		if ($originObject->element == 'order_supplier') $labelLibFunc = 'ordersupplier';
+		elseif ($originObject->element == 'invoice_supplier') $labelLibFunc = 'facturefourn';
+		elseif ($originObject->element == 'agefodd_agsession') $labelLibFunc = 'session';
+		else $labelLibFunc = $originObject->element;
+
+		$TTitleAndPictoTabAndDir = [
+			Propal::class => ['Proposal', $type, 'propal', $rootElement, $labelLibFunc],
+			Commande::class => ['CustomerOrder', 'order', 'order', $rootElement, $labelLibFunc],
+			Facture::class => ['InvoiceCustomer', 'invoice', 'bill', $rootElement, $labelLibFunc],
+			Expedition::class => ['Shipment', 'sendings', 'Shipment', $rootElement, $labelLibFunc],
+			SupplierProposal::class => ['CommRequest', $type, 'supplier_proposal', $rootElement, $labelLibFunc],
+			SupplierOrders::class => ['SupplierOrder', $type, 'order', $rootElement, $labelLibFunc],
+			FactureFournisseur::class => ['invoice_supplier', 'fourn', 'supplier_invoice', $rootElement, $labelLibFunc],
+			CommandeFournisseur::class => ['order_supplier', 'fourn',  'supplier_order', $rootElement, $labelLibFunc],
+			Reception::class => ['Reception', $type, 'dollyrevert'],
+			Product::class => ["CardProduct".$originObject->type, $type, ($originObject->type == Product::TYPE_SERVICE ? 'service' : 'product'), $rootElement, $labelLibFunc],
+			Entrepot::class => ['Warehouse', $type, 'stock', $rootElement, $labelLibFunc],
+			Project::class => ['Project', $type, ($originObject->public ? 'projectpub' : 'project'), $rootElement, $labelLibFunc],
+			Ticket::class => ['Ticket', $type, 'ticket', $rootElement, $labelLibFunc],
+			Agsession::class => ['AgfSessionDetail', 'agefodd', 'calendarday', $rootElement, $labelLibFunc],
+		];
+		return $TTitleAndPictoTabAndDir[$class];
+	}
+
 }

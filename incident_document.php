@@ -58,8 +58,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
-dol_include_once('/incident/class/incident.class.php');
-dol_include_once('/incident/lib/incident_incident.lib.php');
+require_once __DIR__ . '/class/incident.class.php';
+require_once __DIR__ . '/lib/incident_incident.lib.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array("incident@incident", "companies", "other", "mails"));
@@ -164,7 +164,9 @@ foreach ($filearray as $key => $file) {
 
 // Object card
 // ------------------------------------------------------------
-$linkback = '<a href="'.dol_buildpath('/incident/incident_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+if ((!empty($object->fk_element) && !empty($object->element_type))) $filter = '&originId='.$object->fk_element.'&type='.$object->element_type.'&filterPage=1';
+else $filter = '';
+$linkback = '<a href="'.dol_buildpath('/incident/incident_list.php', 1).'?id='.$object->id . $filter.'">'.$langs->trans("BackToList").'</a>';
 
 $morehtmlref = '<div class="refidno">';
 $morehtmlref .= '</div>';

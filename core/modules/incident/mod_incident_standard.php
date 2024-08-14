@@ -22,8 +22,7 @@
  *  \ingroup    incident
  *  \brief      File of class to manage Incident numbering rules standard
  */
-dol_include_once('/incident/core/modules/incident/modules_incident.php');
-
+require_once __DIR__ . '/modules_incident.php';
 
 /**
  *	Class to manage the Standard numbering rule for Incident

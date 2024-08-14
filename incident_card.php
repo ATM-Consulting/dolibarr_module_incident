@@ -57,8 +57,8 @@ if (!$res) {
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
-dol_include_once('/incident/class/incident.class.php');
-dol_include_once('/incident/lib/incident_incident.lib.php');
+require_once __DIR__ . '/class/incident.class.php';
+require_once __DIR__ . '/lib/incident_incident.lib.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array("incident@incident", "other"));
@@ -150,7 +150,7 @@ if ($reshook < 0) {
 }
 
 if (empty($reshook)) {
-	$backurlforlist = dol_buildpath('/incident/incident_card.php', 1).'?id='.((!empty($id) && $id > 0) ? $id : '__ID__');
+	$backurlforlist = dol_buildpath('/incident/incident_card.php', 1).'?id='.$id ;
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
@@ -161,7 +161,11 @@ if (empty($reshook)) {
 		}
 	}
 
-	$triggermodname = 'INCIDENT_INCIDENT_MODIFY'; // Name of trigger action code to execute when we modify record
+	$triggermodname = 'INCIDENT_INCIDENT_MODIFY';
+//	// Name of trigger action code to execute when we modify record
+	if ($action == 'confirm_close' && (!$permissiondelfinish && ($object->user_valid != $user->id))){
+		accessforbidden();
+	}
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -182,13 +186,11 @@ if (empty($reshook)) {
 	}
 
 	// Actions to send emails
-	$triggersendname = 'INCIDENT_MYOBJECT_SENTBYMAIL';
-	$autocopy = 'MAIN_MAIL_AUTOCOPY_MYOBJECT_TO';
+	$triggersendname = 'INCIDENT_INCIDENT_SENTBYMAIL';
+	$autocopy = 'MAIN_MAIL_AUTOCOPY_INCIDENT_TO';
 	$trackid = 'incident'.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 }
-
-
 
 
 /*
@@ -319,6 +321,9 @@ if (($id || $ref) && $action == 'edit') {
 
 // Part to show record
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
+
+	if ($filterPage || (!empty($object->fk_element) && !empty($object->element_type))) $filter = '&originId='.$object->fk_element.'&type='.$object->element_type.'&filterPage=1';
+	else $filter = '';
 	$head = incidentPrepareHead($object);
 
 	print dol_get_fiche_head($head, 'card', $langs->trans("Incident"), -1, $object->picto, 0, '', '', 0, '', 1);
@@ -327,18 +332,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete (using preloaded confirm popup)
 	if ($action == 'delete' || ($conf->use_javascript_ajax && empty($conf->dol_use_jmobile))) {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id .'&originId='. $object->fk_element  .'&type='.$object->element_type , $langs->trans('DeleteIncident'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 'action-delete');
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id .$filter , $langs->trans('DeleteIncident'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 'action-delete');
 	}
-	// Confirmation to delete line
-	if ($action == 'deleteline') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
-	}
-
 	// Clone confirmation
 	if ($action == 'clone') {
 		// Create an array for form
 		$formquestion = array();
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.$filter, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
 	}
 
 
@@ -359,9 +359,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
-	if ($filterPage || (!empty($type) && !empty($originId))) $filter = '?originId='.$object->fk_element.'&type='.$object->element_type;
-	else $filter = '';
-	$linkback = '<a href="'.dol_buildpath('/incident/incident_list.php', 1). $filter.'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/incident/incident_list.php', 1). '?id='.$object->id. $filter.'">'.$langs->trans("BackToList").'</a>';
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
@@ -383,61 +381,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print dol_get_fiche_end();
 
-
-	/*
-	 * Lines
-	 */
-
-	if (!empty($object->table_element_line)) {
-		// Show object lines
-		$result = $object->getLinesArray();
-
-		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
-		<input type="hidden" name="token" value="' . newToken().'">
-		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
-		<input type="hidden" name="mode" value="">
-		<input type="hidden" name="page_y" value="">
-		<input type="hidden" name="id" value="' . $object->id.'">
-		';
-
-		if (!empty($conf->use_javascript_ajax) && $object->status == 0) {
-			include DOL_DOCUMENT_ROOT.'/core/tpl/ajaxrow.tpl.php';
-		}
-
-		print '<div class="div-table-responsive-no-min">';
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
-			print '<table id="tablelines" class="noborder noshadow" width="100%">';
-		}
-
-		if (!empty($object->lines)) {
-			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
-		}
-
-		// Form to add new line
-		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines') {
-			if ($action != 'editline') {
-				// Add products/services form
-
-				$parameters = array();
-				$reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-				if ($reshook < 0) {
-					setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-				}
-				if (empty($reshook)) {
-					$object->formAddObjectLine(1, $mysoc, $soc);
-				}
-			}
-		}
-
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
-			print '</table>';
-		}
-		print '</div>';
-
-		print "</form>\n";
-	}
-
-
 	// Buttons for actions
 
 	if ($action != 'presend' && $action != 'editline') {
@@ -451,48 +394,43 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook)) {
 			// Send
 			if (empty($user->socid)) {
-				print dolGetButtonAction('', $langs->trans('SendMail'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&token='.newToken().'&mode=init#formmailbeforetitle');
+				print dolGetButtonAction('', $langs->trans('SendMail'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&token='.newToken().'&mode=init#formmailbeforetitle'.$filter);
 			}
 
 			// Back to draft
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print dolGetButtonAction('', $langs->trans('SetToDraft'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
+				print dolGetButtonAction('', $langs->trans('SetToDraft'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken().$filter, '', $permissiontoadd);
 				if ($permissiondelfinish || ($object->user_valid == $user->id)){
-					print dolGetButtonAction('', $langs->trans('ClosedIncident'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=confirm_close&confirm=yes&token=' . newToken(), '', $permissiontoadd);
+					print dolGetButtonAction('', $langs->trans('ClosedIncident'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=confirm_close&confirm=yes&token=' . newToken().$filter, '', $permissiontoadd);
 				}
 			}
 			if ($object->status == $object::STATUS_FINISH) {
-				print dolGetButtonAction('', $langs->trans('Reopen'), 'default', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_validate&confirm=yes&token=' . newToken(), '', $permissiontoadd);
+				print dolGetButtonAction('', $langs->trans('Reopen'), 'default', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_validate&confirm=yes&token=' . newToken().$filter, '', $permissiontoadd);
 			}
 
 			// Modify
 			if ($object->status == $object::STATUS_DRAFT){
-				print dolGetButtonAction('', $langs->trans('Modify'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken() . (!empty($filter) ? '&filterPage=1' : ''), '', $permissiontoadd);
+				print dolGetButtonAction('', $langs->trans('Modify'), 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken() .$filter, '', $permissiontoadd);
 			}
 
 			// Validate
 			if ($object->status == $object::STATUS_DRAFT) {
-				if (empty($object->table_element_line) || (is_array($object->lines) && count($object->lines) > 0)) {
-					print dolGetButtonAction('', $langs->trans('Validate'), 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes&token='.newToken(), '', $permissiontoadd);
-				} else {
-					$langs->load("errors");
-					print dolGetButtonAction($langs->trans("ErrorAddAtLeastOneLineFirst"), $langs->trans("Validate"), 'default', '#', '', 0);
-				}
+					print dolGetButtonAction('', $langs->trans('Validate'), 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes&token='.newToken().$filter, '', $permissiontoadd);
 			}
 
 			// Clone
 			if ($permissiontoadd) {
-				print dolGetButtonAction('', $langs->trans('ToClone'), 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.(!empty($object->socid) ? '&socid='.$object->socid : '').'&action=clone&token='.newToken(), '', $permissiontoadd);
+				print dolGetButtonAction('', $langs->trans('ToClone'), 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.(!empty($object->socid) ? '&socid='.$object->socid : '').'&action=clone&token='.newToken().$filter, '', $permissiontoadd);
 			}
 
 			// Delete (with preloaded confirm popup)
-			$deleteUrl = $_SERVER["PHP_SELF"].'?id='.$object->id.'&origin='.$originId.'&type='.$type.'action=delete&token='.newToken();
+			$deleteUrl = $_SERVER["PHP_SELF"].'?id='.$object->id.$filter.'action=delete&token='.newToken();
 			$buttonId = 'action-delete-no-ajax';
 			if ($conf->use_javascript_ajax && empty($conf->dol_use_jmobile)) {	// We can use preloaded confirm if not jmobile
 				$deleteUrl = '';
 				$buttonId = 'action-delete';
 			}
-			$params = array('backtopage' => '&origin='.$originId.'&type='.$type);
+			$params = array('backtopage' => $filter);
 			print dolGetButtonAction('', $langs->trans("Delete"), 'delete', $deleteUrl , $buttonId, $permissiontodelete, $params);
 
 		}
