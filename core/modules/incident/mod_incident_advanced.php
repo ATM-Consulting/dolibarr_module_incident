@@ -118,7 +118,6 @@ class mod_incident_advanced extends ModeleNumRefIncident
 	public function getNextValue($object)
 	{
 		global $db;
-
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
 		// We get cursor rule
@@ -130,7 +129,6 @@ class mod_incident_advanced extends ModeleNumRefIncident
 		}
 
 		$date = $object->date;
-
 		$numFinal = get_next_value($db, $mask, 'incident_incident', 'ref', '', null, $date);
 
 		return  $numFinal;

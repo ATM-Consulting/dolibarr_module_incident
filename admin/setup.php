@@ -96,11 +96,7 @@ if (!$user->admin) {
 	accessforbidden();
 }
 
-
-
-
 $setupnotempty += count($formSetup->items);
-
 
 $dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 
@@ -285,7 +281,6 @@ foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
 		print '</tr>'."\n";
 
 		clearstatcache();
-
 		foreach ($dirmodels as $reldir) {
 			$dir = dol_buildpath($reldir."core/modules/".$moduledir);
 

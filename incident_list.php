@@ -308,7 +308,6 @@ foreach ($search as $key => $val) {
 if ($search_all) {
 	$sql .= natural_search(array_keys($fieldstosearchall), $search_all);
 }
-
 // Add where from extra fields
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
 // Add where from hooks
@@ -318,13 +317,9 @@ $sql .= $hookmanager->resPrint;
 
 if (!empty($type) && !empty($originId)){
 	$TElementProperties = getElementProperties($type);
-	$classFile = DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php';
-	$res = file_exists($classFile);
-	if ($res) require_once $classFile;
-	else dol_include_once($classFile);
-	$originObject = new $TElementProperties['classname']($db);
-	$res = $originObject->fetch($originId);
-	if ($res) $sql .= " AND fk_element = ".$originId." AND element_type = '".$originObject->element."'";
+	Incident::includeClassObjectOrigin($TElementProperties);
+	$originObject = $object->returnOriginObject($TElementProperties, $originId);
+	if (is_object($originObject)) $sql .= " AND fk_element = ".$originId." AND element_type = '".$originObject->element."'";
 }
 
 // Count total nb of records
@@ -380,12 +375,11 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 	$rootElement = str_replace('class', '', $TElementProperties['classpath']);
 	$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
 
-	$labelTab = $TObjectConfig[0];
-	$labelLib = $TObjectConfig[1];
-	$labelPicto = $TObjectConfig[2];
-	$rootReturnList = $TObjectConfig[3];
-	$labelLibFunc = $TObjectConfig[4];
-
+	$labelTab = 		$TObjectConfig[0] ?? '';
+	$labelLib = 		$TObjectConfig[1] ?? '';
+	$labelPicto = 		$TObjectConfig[2] ?? '';
+	$rootReturnList = 	$TObjectConfig[3] ?? '';
+	$labelLibFunc = 	$TObjectConfig[4] ?? '';
 	$libFile = '/core/lib/'.$labelLib.'.lib.php';
 	$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
 	if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
@@ -412,13 +406,15 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 // Ref customer
 	if ($type == 'project'){
 		$morehtmlref .= dol_escape_htmltag($originObject->title);
-	}elseif ($type != 'agefodd_agsession' && $type != 'supplier_proposal' && $type != 'order_supplier' && $type != 'ticket'){
+	}elseif ($type != 'agefodd_agsession' && $type != 'supplier_proposal' && $type != 'order_supplier' && $type != 'ticket' && $type != 'reception' && $type != 'product' && $type != 'stock'){
 		$morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $originObject->ref_client, $originObject, 0, 'string', '', 0, 1);
 		$morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $originObject->ref_client, $originObject, 0, 'string'.(isset($conf->global->THIRDPARTY_REF_INPUT_SIZE) ? ':' . getDolGlobalString('THIRDPARTY_REF_INPUT_SIZE') : ''), '', null, null, '', 1);
-	}elseif ($type == 'order_supplier') {
+	}elseif ($type == 'order_supplier' || $type == 'reception') {
 		$morehtmlref .= $form->editfieldkey("RefSupplier", 'ref_supplier', $originObject->ref_supplier, $object, 0, 'string', '', 0, 1);
 		$morehtmlref .= $form->editfieldval("RefSupplier", 'ref_supplier', $originObject->ref_supplier, $object, 0, 'string', '', null, null, '', 1);
-	}elseif ($type == 'ticket') {
+	}elseif ($type == 'stock') {
+		$morehtmlref .= $langs->trans("LocationSummary").' : '.$object->lieu;
+	} elseif ($type == 'ticket') {
 		$morehtmlref .= $originObject->subject;
 		// Author
 		if ($originObject->fk_user_create > 0) {
@@ -438,14 +434,11 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 	}
 	else $morehtmlref .= '';
 // Thirdparty
-	if ($type != 'agefodd_agsession'){
-		$morehtmlref .= '<br><span class="hideonsmartphone">'.$langs->trans('ThirdParty').' : </span>'.$soc->getNomUrl(1, 'customer');
-		if (!getDolGlobalString('MAIN_DISABLE_OTHER_LINK') && $soc->id > 0) {
-			$morehtmlref .= ' (<a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$soc->id.'&search_societe='.urlencode($soc->name).'">'.$langs->trans("OtherProposals").'</a>)';
-		}
+	if ($type != 'agefodd_agsession' && $type != 'product'  && $type != 'stock') {
+		$morehtmlref .= '<br>'.$soc->getNomUrl(1);
 	}
 // Project
-	if (isModEnabled('project') && $type != 'agefodd_agsession' && $type != 'project' && $type != 'supplier_proposal'  && $type != 'ticket') {
+	if (isModEnabled('project') && $type != 'agefodd_agsession' && $type != 'project' && $type != 'supplier_proposal'  && $type != 'ticket'  && $type != 'reception' && $type != 'product') {
 		$langs->load("projects");
 		$morehtmlref .= '<br>';
 		if ($permissiontoadd) {
@@ -469,8 +462,6 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 		dol_banner_tab($originObject, 'originId', $linkback, 1, 'rowid', 'ref', $morehtmlref, '&type='.$type);
 	}
 }
-
-
 $arrayofselected = is_array($toselect) ? $toselect : array();
 
 $param = '';
@@ -543,15 +534,13 @@ $newcardbutton = '';
 $newcardbutton .= dolGetButtonTitle($langs->trans('ViewList'), '', 'fa fa-bars imgforviewmode', $_SERVER["PHP_SELF"].'?originId='.$originId.'&type='.$type.'&mode=common'.preg_replace('/(&|\?)*mode=[^&]+/', '', $param), '', ((empty($mode) || $mode == 'common') ? 2 : 1), array('morecss'=>'reposition'));
 $newcardbutton .= dolGetButtonTitle($langs->trans('ViewKanban'), '', 'fa fa-th-list imgforviewmode', $_SERVER["PHP_SELF"].'?originId='.$originId.'&type='.$type.'&mode=kanban'.preg_replace('/(&|\?)*mode=[^&]+/', '', $param), '', ($mode == 'kanban' ? 2 : 1), array('morecss'=>'reposition'));
 $newcardbutton .= dolGetButtonTitleSeparator();
-$newcardbutton .= dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/incident/incident_card.php', 1).'?action=create&originId='.$originId.'&type='.$type.'&backtopage='.urlencode($_SERVER['PHP_SELF'].'?originId='.$originId.'&type='.$type), '', $permissiontoadd);
+$newcardbutton .= dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/incident/incident_card.php', 1).'?action=create&id='.$id.'&originId='.$originId.'&type='.$type.'&backtopage='.urlencode($_SERVER['PHP_SELF'].'?originId='.$originId.'&type='.$type), '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 
 // Add code for pre mass action (confirmation or email presend form)
 $topicmail = "SendIncidentRef";
 $modelmail = "incident";
-$objecttmp = new Incident($db);
-$trackid = 'xxxx'.$object->id;
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
 if ($search_all) {

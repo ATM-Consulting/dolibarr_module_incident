@@ -746,9 +746,6 @@ class Incident extends CommonObject
 	public function fetch(int $id, string $ref = null, int $noextrafields = 0, int $nolines = 0) :int
 	{
 		$result = $this->fetchCommon($id, $ref, '', $noextrafields);
-		if ($result > 0 && !empty($this->table_element_line) && empty($nolines)) {
-			$this->fetchLines($noextrafields);
-		}
 		return $result;
 	}
 
@@ -896,6 +893,8 @@ class Incident extends CommonObject
 		$this->db->begin();
 
 		// Define new ref
+
+
 		if (!$error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happened, but when it occurs, the test save life
 			$num = $this->getNextNumRef();
 		} else {
@@ -1294,7 +1293,6 @@ class Incident extends CommonObject
 		if ($status == self::STATUS_FINISH) {
 			$statusType = 'status6';
 		}
-
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
 
@@ -1373,10 +1371,13 @@ class Incident extends CommonObject
 	 *
 	 *  @return string      		Object free reference
 	 */
-	public function getNextNumRef():string
+	public function getNextNumRef()
 	{
 		global $langs, $conf;
 		$langs->load("incident@incident");
+
+		require_once dirname(__DIR__)  . '/core/modules/incident/mod_incident_advanced.php' ;
+		require_once dirname(__DIR__)  . '/core/modules/incident/mod_incident_standard.php' ;
 
 		if (!getDolGlobalString('INCIDENT_INCIDENT_ADDON')) {
 			$conf->global->INCIDENT_INCIDENT_ADDON = 'mod_incident_standard';
@@ -1401,6 +1402,7 @@ class Incident extends CommonObject
 
 			if (class_exists($classname)) {
 				$obj = new $classname();
+
 				$numref = $obj->getNextValue($this);
 				if ($numref != '' && $numref != '-1') {
 					return $numref;
@@ -1455,44 +1457,81 @@ class Incident extends CommonObject
 		if ($includedocgeneration && !empty($modele)) {
 			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
 		}
-
 		return $result;
 	}
 
 	/**
+	 * @param array $TElementProperties
+	 * @param string $type
+	 * @param string $originId
+	 * @param bool $fetch
+	 * @return int|mixed
+	 */
+	public function returnOriginObject(array $TElementProperties, string $originId, Bool $fetch = true) {
+		$originObject = new $TElementProperties['classname']($this->db);
+		if ($fetch) $res = $originObject->fetch($originId);
+		else return $originObject;
+		if ($res >= 1) return $originObject;
+		else return 0;
+	}
+	/**
+	 * return array :
+	 *  0 = Titre du bloc tab  param title de : dol_get_fiche_head())
+	 *  1 = début du nom du fichier de lib
+	 *  2 = Nom du picto de l'object
+	 *  3 = Chemin du fichier de list.php
+	 *  4 = Debut du nom de la fonction xxxx_prepare_head()
+	 *
 	 * @param string $class
 	 * @param string $type
 	 * @param Object $originObject
 	 * @return array
 	 */
-	public  static function returnArrayObjectConfig(string $class, string $type, Object $originObject, $rootElement):array {
+	public static function returnArrayObjectConfig(string $class, string $type, Object $originObject, $rootElement):array {
 
 		if ($type == 'order_supplier') $rootElement = 'fourn/commande/';
 		if ($type == 'invoice_supplier') $rootElement = 'fourn/facture/';
-
 
 		if ($originObject->element == 'order_supplier') $labelLibFunc = 'ordersupplier';
 		elseif ($originObject->element == 'invoice_supplier') $labelLibFunc = 'facturefourn';
 		elseif ($originObject->element == 'agefodd_agsession') $labelLibFunc = 'session';
 		else $labelLibFunc = $originObject->element;
 
+		$serviceOrProduct = 	($originObject->type == Product::TYPE_SERVICE ? 'service' : 'product');
+		$projectPublicOrPrive = ($originObject->public ? 'projectpub' : 'project');
+
 		$TTitleAndPictoTabAndDir = [
-			Propal::class => ['Proposal', $type, 'propal', $rootElement, $labelLibFunc],
-			Commande::class => ['CustomerOrder', 'order', 'order', $rootElement, $labelLibFunc],
-			Facture::class => ['InvoiceCustomer', 'invoice', 'bill', $rootElement, $labelLibFunc],
-			Expedition::class => ['Shipment', 'sendings', 'Shipment', $rootElement, $labelLibFunc],
-			SupplierProposal::class => ['CommRequest', $type, 'supplier_proposal', $rootElement, $labelLibFunc],
-			SupplierOrders::class => ['SupplierOrder', $type, 'order', $rootElement, $labelLibFunc],
-			FactureFournisseur::class => ['invoice_supplier', 'fourn', 'supplier_invoice', $rootElement, $labelLibFunc],
-			CommandeFournisseur::class => ['order_supplier', 'fourn',  'supplier_order', $rootElement, $labelLibFunc],
-			Reception::class => ['Reception', $type, 'dollyrevert'],
-			Product::class => ["CardProduct".$originObject->type, $type, ($originObject->type == Product::TYPE_SERVICE ? 'service' : 'product'), $rootElement, $labelLibFunc],
-			Entrepot::class => ['Warehouse', $type, 'stock', $rootElement, $labelLibFunc],
-			Project::class => ['Project', $type, ($originObject->public ? 'projectpub' : 'project'), $rootElement, $labelLibFunc],
-			Ticket::class => ['Ticket', $type, 'ticket', $rootElement, $labelLibFunc],
-			Agsession::class => ['AgfSessionDetail', 'agefodd', 'calendarday', $rootElement, $labelLibFunc],
+			Propal::class => 				['Proposal', $type, 'propal', $rootElement, $labelLibFunc],
+			Commande::class => 				['CustomerOrder', 'order', 'order', $rootElement, $labelLibFunc],
+			Facture::class => 				['InvoiceCustomer', 'invoice', 'bill', $rootElement, $labelLibFunc],
+			Expedition::class => 			['Shipment', 'sendings', 'dolly', $rootElement, $labelLibFunc],
+			SupplierProposal::class => 		['CommRequest', $type, 'supplier_proposal', $rootElement, $labelLibFunc],
+			SupplierOrders::class => 		['SupplierOrder', $type, 'order', $rootElement, $labelLibFunc],
+			FactureFournisseur::class => 	['invoice_supplier', 'fourn', 'supplier_invoice', $rootElement, $labelLibFunc],
+			CommandeFournisseur::class => 	['order_supplier', 'fourn',  'supplier_order', $rootElement, $labelLibFunc],
+			Reception::class => 			['Reception', $type, 'dollyrevert', $rootElement, $labelLibFunc],
+			Product::class => 				["CardProduct".$originObject->type, $type, $serviceOrProduct, $rootElement, $labelLibFunc],
+			Entrepot::class => 				['Warehouse', $type, 'stock', $rootElement, $labelLibFunc],
+			Project::class => 				['Project', $type, $projectPublicOrPrive, $rootElement, $labelLibFunc],
+			Ticket::class => 				['Ticket', $type, 'ticket', $rootElement, $labelLibFunc],
+			Agsession::class => 			['AgfSessionDetail', 'agefodd', 'calendarday', $rootElement, $labelLibFunc],
 		];
 		return $TTitleAndPictoTabAndDir[$class];
 	}
+
+	/**
+	 * @param array $TElementProperties
+	 * @return void
+	 */
+	public static function includeClassObjectOrigin (array $TElementProperties):void {
+		$classFile = DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php';
+		$res = file_exists($classFile);
+		if ($res) require_once $classFile;
+		else dol_include_once($classFile);
+	}
+
+
+
+
 
 }

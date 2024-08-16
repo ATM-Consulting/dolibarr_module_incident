@@ -166,6 +166,10 @@ if (empty($reshook)) {
 	if ($action == 'confirm_close' && (!$permissiondelfinish && ($object->user_valid != $user->id))){
 		accessforbidden();
 	}
+	if ($action == 'confirm_delete'){
+		$backurlforlist = dol_buildpath('/incident/incident_list.php', 1).'?originId='.$originId.'&type='.$type;
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -216,34 +220,47 @@ if ($action == 'create') {
 		accessforbidden('NotEnoughPermissions', 0, 1);
 	}
 
-	if (!empty($type) && !empty($originId)){
-		$TElementProperties = getElementProperties($type);
-		$res = file_exists(DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php');
-		if ($res) require_once DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php';
-		else dol_include_once('/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php');
+	$TElementProperties = getElementProperties($type);
+	if (!empty($type) && !empty($originId) && is_array($TElementProperties) && !empty($TElementProperties)){
+		Incident::includeClassObjectOrigin($TElementProperties);
 
-		$originObject = new $TElementProperties['classname']($db);
-		if (get_class($originObject) == Commande::class) $libObject = 'order';
-		elseif (get_class($originObject) == Facture::class) $libObject = 'invoice';
-		elseif (get_class($originObject) == Expedition::class) $libObject = 'sendings';
-		elseif (get_class($originObject) == CommandeFournisseur::class) $libObject = 'fourn';
-		elseif (get_class($originObject) == FactureFournisseur::class) $libObject = 'fourn';
-		else $libObject = $type;
-		$libFile = '/core/lib/'.$libObject.'.lib.php';
-		$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
-		if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
-		elseif($libObject = 'agefodd') dol_include_once('agefodd/lib/'.$libObject.'.lib.php');
-		else dol_include_once($libFile);
-		$prepareHeadFunction = $object->element .'_prepare_head';
-		$res = function_exists( $prepareHeadFunction);
-		if ($res) {
-			$head = $prepareHeadFunction($originObject);
-			print dol_get_fiche_head($head, 'incident',  '', -1, $object->element);
+		$originObject = $object->returnOriginObject($TElementProperties, $originId);
+		if (is_object($originObject)) {
+			$rootElement = str_replace('class', '', $TElementProperties['classpath']);
+			$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
+			if (!empty($TObjectConfig)){
+				$labelTab = 	$TObjectConfig[0] ?? '';
+				$labelLib = 	$TObjectConfig[1] ?? '';
+				$labelPicto = 	$TObjectConfig[2] ?? '';
+				$labelLibFunc = $TObjectConfig[4] ?? '';
+				$res = file_exists(DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php');
+				if ($res) require_once DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php';
+				else dol_include_once('/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php');
+
+
+				$libFile = '/core/lib/'.$labelLib.'.lib.php';
+				$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
+				if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
+				elseif($labelLib = 'agefodd') dol_include_once('agefodd/lib/'.$labelLib.'.lib.php');
+				else dol_include_once($libFile);
+
+				$res = $prepareHeadFunction = $labelLibFunc .'_prepare_head';
+				if ($res) {
+					$head = $prepareHeadFunction($originObject);
+					print dol_get_fiche_head($head, 'incident', $labelTab, -1, $labelPicto);
+				}
+			}
+		}else{
+			setEventMessage($langs->trans("ErrorFetchOriginObject"), 'errors');
 		}
 	}
 	print load_fiche_titre($title, '', 'object_'.$object->picto);
+	if (isset($originObject)){
+		$backtopage = dol_buildpath('/incident/incident_list.php', 1).'?id='.$id.'&originId='. $originId .'&type='.$type;
+	}else{
+		$backtopage = dol_buildpath('/incident/incident_list.php', 1).'?restore_lastsearch_values=1';
 
-	$backtopage = dol_buildpath('/incident/incident_card.php', 1).'?id='.((!empty($id) && $id > 0) ? $id : '__ID__') .'&originId='. $originId .'&type='.$type;
+	}
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
