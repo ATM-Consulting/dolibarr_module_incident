@@ -19,7 +19,7 @@
 /**
  * \file    incident/admin/about.php
  * \ingroup incident
- * \brief   About page of module Incident.
+ * \brief   About page of module incident.
  */
 
 // Load Dolibarr environment
@@ -54,7 +54,7 @@ if (!$res) {
 // Libraries
 require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
-require_once '../lib/incident.lib.php';
+require_once '../lib/incident_incident.lib.php';
 
 // Translations
 $langs->loadLangs(array("errors", "admin", "incident@incident"));
@@ -83,24 +83,29 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $form = new Form($db);
 
 $help_url = '';
-$title = "IncidentSetup";
+$page_name = "incidentSetup";
 
-llxHeader('', $langs->trans($title), $help_url, '', 0, 0, '', '', '', 'mod-incident page-admin_about');
+llxHeader('', $langs->trans("incidentSetup"), $help_url);
 
 // Subheader
 $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
-print load_fiche_titre($langs->trans($title), $linkback, 'title_setup');
+print load_fiche_titre($langs->trans($page_name), $linkback, 'title_setup');
 
 // Configuration header
 $head = incidentAdminPrepareHead();
-print dol_get_fiche_head($head, 'about', $langs->trans($title), 0, 'incident@incident');
+print dol_get_fiche_head($head, 'about', $langs->trans($page_name), -1, 'incident@incident');
 
-dol_include_once('/incident/core/modules/modIncident.class.php');
-$tmpmodule = new modIncident($db);
-print $tmpmodule->getDescLong();
+print dol_get_fiche_end(-1);
+
+require_once __DIR__ . '/../class/TechATM.class.php';
+$techATM = new TechATM($db);
+
+require_once __DIR__ . '/../core/modules/modIncident.class.php';
+$moduleDescriptor = new modincident($db);
+
+print $techATM->getAboutPage($moduleDescriptor);
 
 // Page end
-print dol_get_fiche_end();
 llxFooter();
 $db->close();

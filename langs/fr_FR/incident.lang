@@ -1,0 +1,62 @@
+# Copyright (C) ---Put here your own copyright and developer email---
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Paramètres
+#
+IncidentSetup = Paramétres incidents
+Settings = Paramétres
+IncidentSetupPage = Incident page paramétres
+
+
+#
+# Incidents
+#
+tabIncident = Liste des incidents
+Incidents = Incidents
+userValid = Utilisateur validateur
+correctiveElement = Élément correctif
+typeOfIncident = Type d'incident
+ClosedIncident = Terminé
+Reopen = Réouverture
+finish = Terminé
+originElement = Élément d'origine
+incidentLeftTitle = Incidents
+incidentList = Liste des incidents
+incidentCreate = Nouvel incident
+ReadIncident = Lire les fiches d'incidents
+CreateUpdateIncident = Créer / modifier les fiches d'incidents
+DeleteIncident = Supprimer les fiches d'incidents
+FinishIncident = Marquer les fiches d'incidents comme "terminé" sans être utilisateur validateur
+incidentListDraft = Liste des brouillons d'incidents
+incidentListValidated = Liste des incidents validés
+incidentListCancelled = Liste des incidents annulés
+incidentListFinished = Liste des incidents terminés
+propal = Devis
+commande = Commande
+facture = Facture
+expedition = Expédition
+shipping = Expédition
+reception = Réception
+supplier_proposal = Devis fournisseur
+order_supplier = Commande fournisseur
+stock = Entrepôt
+product = Produit
+agefodd_agsession = Session
+project = Projet
+ticket = Ticket
+elementType = Élément
+invoice_supplier = Facture fournisseur
+ErrorFetchOriginObject = Le document d'origine n'a pas pu être chargé.

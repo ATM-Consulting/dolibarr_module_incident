@@ -20,7 +20,7 @@
 # Module label 'ModuleIncidentName'
 ModuleIncidentName = Incident
 # Module description 'ModuleIncidentDesc'
-ModuleIncidentDesc = Incident description
+ModuleIncidentDesc = Module Incident
 
 #
 # Admin page

@@ -76,7 +76,7 @@ class modIncident extends DolibarrModules
 		$this->editor_squarred_logo = '';					// Must be image filename into the module/img directory followed with @modulename. Example: 'myimage.png@incident'
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated', 'experimental_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.0';
+		$this->version = '1.0.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -87,7 +87,7 @@ class modIncident extends DolibarrModules
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
 		// To use a supported fa-xxx css style of font awesome, use this->picto='xxx'
-		$this->picto = 'fa-file-o';
+		$this->picto = 'fa-exclamation-triangle';
 
 		// Define some features supported by module (triggers, login, substitutions, menus, css, etc...)
 		$this->module_parts = array(
@@ -104,7 +104,7 @@ class modIncident extends DolibarrModules
 			// Set this to 1 if module has its own barcode directory (core/modules/barcode)
 			'barcode' => 0,
 			// Set this to 1 if module has its own models directory (core/modules/xxx)
-			'models' => 0,
+			'models' => 1,
 			// Set this to 1 if module has its own printing directory (core/modules/printing)
 			'printing' => 0,
 			// Set this to 1 if module has its own theme directory (theme)
@@ -120,11 +120,10 @@ class modIncident extends DolibarrModules
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			/* BEGIN MODULEBUILDER HOOKSCONTEXTS */
 			'hooks' => array(
-				//   'data' => array(
-				//       'hookcontext1',
-				//       'hookcontext2',
-				//   ),
-				//   'entity' => '0',
+				   'data' => array(
+				       'main',
+				   ),
+				   'entity' => '0',
 			),
 			/* END MODULEBUILDER HOOKSCONTEXTS */
 			// Set this to 1 if features of module are opened to external users
@@ -181,19 +180,24 @@ class modIncident extends DolibarrModules
 			$conf->incident = new stdClass();
 			$conf->incident->enabled = 0;
 		}
-
 		// Array to add new pages in new tabs
-		/* BEGIN MODULEBUILDER TABS */
-		$this->tabs = array();
-		/* END MODULEBUILDER TABS */
-		// Example:
-		// To add a new tab identified by code tabname1
-		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@incident:$user->hasRight('incident', 'read'):/incident/mynewtab1.php?id=__ID__');
 		// To add another new tab identified by code tabname2. Label will be result of calling all substitution functions on 'Title2' key.
-		// $this->tabs[] = array('data'=>'objecttype:+tabname2:SUBSTITUTION_Title2:mylangfile@incident:$user->hasRight('othermodule', 'read'):/incident/mynewtab2.php?id=__ID__',
-		// To remove an existing tab identified by code tabname
-		// $this->tabs[] = array('data'=>'objecttype:-tabname:NU:conditiontoremove');
-		//
+		$this->tabs = array(
+			'propal:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=propal',
+			'order:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=commande',
+			'invoice:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=facture',
+			'delivery:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=shipping',
+			'supplier_proposal:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=supplier_proposal',
+			'supplier_order:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=order_supplier',
+			'supplier_invoice:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=invoice_supplier',
+			'reception:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=reception',
+			'stock:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=stock',
+			'product:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=product',
+			'project:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=project',
+			'ticket:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=ticket',
+			'agefodd_session:+incident:tabIncident:mylangfile@incident:$user->hasRight("incident", "incident", "read"):/incident/incident_list.php?originId=__ID__&type=agefodd_agsession',
+		);
+
 		// Where objecttype can be
 		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
 		// 'contact'          to add a tab in contact view
@@ -217,34 +221,32 @@ class modIncident extends DolibarrModules
 
 
 		// Dictionaries
-		/* Example:
-		 $this->dictionaries=array(
-		 'langs'=>'incident@incident',
-		 // List of tables we want to see into dictonnary editor
-		 'tabname'=>array("table1", "table2", "table3"),
-		 // Label of tables
-		 'tablib'=>array("Table1", "Table2", "Table3"),
-		 // Request to select fields
-		 'tabsql'=>array('SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table1 as f', 'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table2 as f', 'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table3 as f'),
-		 // Sort order
-		 'tabsqlsort'=>array("label ASC", "label ASC", "label ASC"),
-		 // List of fields (result of select to show dictionary)
-		 'tabfield'=>array("code,label", "code,label", "code,label"),
-		 // List of fields (list of fields to edit a record)
-		 'tabfieldvalue'=>array("code,label", "code,label", "code,label"),
-		 // List of fields (list of fields for insert)
-		 'tabfieldinsert'=>array("code,label", "code,label", "code,label"),
-		 // Name of columns with primary key (try to always name it 'rowid')
-		 'tabrowid'=>array("rowid", "rowid", "rowid"),
-		 // Condition to show each dictionary
-		 'tabcond'=>array(isModEnabled('incident'), isModEnabled('incident'), isModEnabled('incident')),
-		 // Tooltip for every fields of dictionaries: DO NOT PUT AN EMPTY ARRAY
-		 'tabhelp'=>array(array('code'=>$langs->trans('CodeTooltipHelp'), 'field2' => 'field2tooltip'), array('code'=>$langs->trans('CodeTooltipHelp'), 'field2' => 'field2tooltip'), ...),
-		 );
-		 */
-		/* BEGIN MODULEBUILDER DICTIONARIES */
-		$this->dictionaries = array();
-		/* END MODULEBUILDER DICTIONARIES */
+		$this->dictionaries=array(
+			'langs'=>'incident@incident',
+			// List of tables we want to see into dictonnary editor
+			'tabname'=>array(MAIN_DB_PREFIX."c_type_incident"),
+			// Label of tables
+			'tablib'=>array("typeOfIncident"),
+			// Request to select fields
+			'tabsql'=>array(
+				'SELECT ti.rowid, ti.code, ti.label, ti.active FROM '.MAIN_DB_PREFIX.'c_type_incident as ti'
+			),
+			// Sort order
+			'tabsqlsort'=>array("label ASC"),
+			// List of fields (result of select to show dictionary)
+			'tabfield'=>array("code,label"),
+			// List of fields (list of fields to edit a record)
+			'tabfieldvalue'=>array("code,label"),
+			// List of fields (list of fields for insert)
+			'tabfieldinsert'=>array("code,label"),
+			// Name of columns with primary key (try to always name it 'rowid')
+			'tabrowid'=>array("rowid"),
+			// Condition to show each dictionary
+			'tabcond'=>array(isModEnabled('incident')),
+			// Tooltip for every fields of dictionaries: DO NOT PUT AN EMPTY ARRAY
+			'tabhelp'=>array(array()),
+		);
+
 
 		// Boxes/Widgets
 		// Add here list of php file(s) stored in incident/core/boxes that contains a class to show a widget.
@@ -266,8 +268,8 @@ class modIncident extends DolibarrModules
 			//  0 => array(
 			//      'label' => 'MyJob label',
 			//      'jobtype' => 'method',
-			//      'class' => '/incident/class/myobject.class.php',
-			//      'objectname' => 'MyObject',
+			//      'class' => '/incident/class/incident.class.php',
+			//      'objectname' => 'Incident',
 			//      'method' => 'doScheduledJob',
 			//      'parameters' => '',
 			//      'comment' => 'Comment',
@@ -289,24 +291,27 @@ class modIncident extends DolibarrModules
 		$r = 0;
 		// Add here entries to declare new permissions
 		/* BEGIN MODULEBUILDER PERMISSIONS */
-		/*
-		$o = 1;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", ($o * 10) + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = 'Read objects of Incident'; // Permission label
-		$this->rights[$r][4] = 'myobject';
-		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->hasRight('incident', 'myobject', 'read'))
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 0 + 1);
+		$this->rights[$r][1] = 'ReadIncident';
+		$this->rights[$r][4] = 'incident';
+		$this->rights[$r][5] = 'read';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", ($o * 10) + 2); // Permission id (must not be already used)
-		$this->rights[$r][1] = 'Create/Update objects of Incident'; // Permission label
-		$this->rights[$r][4] = 'myobject';
-		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->hasRight('incident', 'myobject', 'write'))
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 1 + 1);
+		$this->rights[$r][1] = 'CreateUpdateIncident';
+		$this->rights[$r][4] = 'incident';
+		$this->rights[$r][5] = 'write';
 		$r++;
-		$this->rights[$r][0] = $this->numero . sprintf("%02d", ($o * 10) + 3); // Permission id (must not be already used)
-		$this->rights[$r][1] = 'Delete objects of Incident'; // Permission label
-		$this->rights[$r][4] = 'myobject';
-		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->hasRight('incident', 'myobject', 'delete'))
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 2 + 1);
+		$this->rights[$r][1] = 'DeleteIncident';
+		$this->rights[$r][4] = 'incident';
+		$this->rights[$r][5] = 'delete';
 		$r++;
-		*/
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 3 + 1);
+		$this->rights[$r][1] = 'FinishIncident';
+		$this->rights[$r][4] = 'incident';
+		$this->rights[$r][5] = 'finish';
+		$r++;
+
 		/* END MODULEBUILDER PERMISSIONS */
 
 
@@ -316,139 +321,125 @@ class modIncident extends DolibarrModules
 		// Add here entries to declare new menus
 		/* BEGIN MODULEBUILDER TOPMENU */
 		$this->menu[$r++] = array(
-			'fk_menu'=>'', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'top', // This is a Top menu entry
-			'titre'=>'ModuleIncidentName',
-			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle"'),
-			'mainmenu'=>'incident',
-			'leftmenu'=>'',
-			'url'=>'/incident/incidentindex.php',
-			'langs'=>'incident@incident', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000 + $r,
-			'enabled'=>'isModEnabled("incident")', // Define condition to show or hide menu entry. Use 'isModEnabled("incident")' if entry must be visible if module is enabled.
-			'perms'=>'1', // Use 'perms'=>'$user->hasRight("incident", "myobject", "read")' if you want your menu with a permission rules
+			'fk_menu'=>'fk_mainmenu=project',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentLeftTitle',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'incident',
+			'url'=> '/incident/incident_list.php',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')", // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
-			'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
+			'user'=>2,
 		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentCreate',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_card.php?action=create',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentList',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'incident',
+			'url'=>'/incident/incident_list.php',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListDraft',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=0',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListValidated',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=1',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListCancelled',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=2',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++] = array(
+			'fk_menu'=>'fk_mainmenu=project,fk_leftmenu=incident',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>'incidentListFinished',
+			'prefix' => img_picto('', $this->picto, 'class="paddingright pictofixedwidth valignmiddle"'),
+			'mainmenu'=>'project',
+			'leftmenu'=>'',
+			'url'=>'/incident/incident_list.php?search_status=9',
+			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>1000+$r,
+			'enabled'=>"isModEnabled('incident')",  // Define condition to show or hide menu entry. Use '$conf->voyage->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->hasRight("incident", "incident", "read")',			                // Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules 			// Use 'perms'=>'$user->rights->voyage->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2,
+		);
+
 		/* END MODULEBUILDER TOPMENU */
 
-		/* BEGIN MODULEBUILDER LEFTMENU MYOBJECT */
-		/*
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=incident',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',                          // This is a Left menu entry
-			'titre'=>'MyObject',
-			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle paddingright"'),
-			'mainmenu'=>'incident',
-			'leftmenu'=>'myobject',
-			'url'=>'/incident/incidentindex.php',
-			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000+$r,
-			'enabled'=>'isModEnabled("incident")', // Define condition to show or hide menu entry. Use 'isModEnabled("incident")' if entry must be visible if module is enabled.
-			'perms'=>'$user->hasRight("incident", "myobject", "read")',
-			'target'=>'',
-			'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
-			'object'=>'MyObject'
-		);
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=incident,fk_leftmenu=myobject',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>'New_MyObject',
-			'mainmenu'=>'incident',
-			'leftmenu'=>'incident_myobject_new',
-			'url'=>'/incident/myobject_card.php?action=create',
-			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000+$r,
-			'enabled'=>'isModEnabled("incident")', // Define condition to show or hide menu entry. Use 'isModEnabled("incident")' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=>'$user->hasRight("incident", "myobject", "write")'
-			'target'=>'',
-			'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
-			'object'=>'MyObject'
-		);
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=incident,fk_leftmenu=myobject',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>'List_MyObject',
-			'mainmenu'=>'incident',
-			'leftmenu'=>'incident_myobject_list',
-			'url'=>'/incident/myobject_list.php',
-			'langs'=>'incident@incident',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000+$r,
-			'enabled'=>'isModEnabled("incident")', // Define condition to show or hide menu entry. Use 'isModEnabled("incident")' if entry must be visible if module is enabled.
-			'perms'=>'$user->hasRight("incident", "myobject", "read")'
-			'target'=>'',
-			'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
-			'object'=>'MyObject'
-		);
-		*/
-		/* END MODULEBUILDER LEFTMENU MYOBJECT */
+		/* BEGIN MODULEBUILDER LEFTMENU INCIDENT */
+		/* END MODULEBUILDER LEFTMENU INCIDENT */
 
 
 		// Exports profiles provided by this module
 		$r = 1;
 		/* BEGIN MODULEBUILDER EXPORT MYOBJECT */
-		/*
-		$langs->load("incident@incident");
-		$this->export_code[$r] = $this->rights_class.'_'.$r;
-		$this->export_label[$r] = 'MyObjectLines';	// Translation key (used only if key ExportDataset_xxx_z not found)
-		$this->export_icon[$r] = $this->picto;
-		// Define $this->export_fields_array, $this->export_TypeFields_array and $this->export_entities_array
-		$keyforclass = 'MyObject'; $keyforclassfile='/incident/class/myobject.class.php'; $keyforelement='myobject@incident';
-		include DOL_DOCUMENT_ROOT.'/core/commonfieldsinexport.inc.php';
-		//$this->export_fields_array[$r]['t.fieldtoadd']='FieldToAdd'; $this->export_TypeFields_array[$r]['t.fieldtoadd']='Text';
-		//unset($this->export_fields_array[$r]['t.fieldtoremove']);
-		//$keyforclass = 'MyObjectLine'; $keyforclassfile='/incident/class/myobject.class.php'; $keyforelement='myobjectline@incident'; $keyforalias='tl';
-		//include DOL_DOCUMENT_ROOT.'/core/commonfieldsinexport.inc.php';
-		$keyforselect='myobject'; $keyforaliasextra='extra'; $keyforelement='myobject@incident';
-		include DOL_DOCUMENT_ROOT.'/core/extrafieldsinexport.inc.php';
-		//$keyforselect='myobjectline'; $keyforaliasextra='extraline'; $keyforelement='myobjectline@incident';
-		//include DOL_DOCUMENT_ROOT.'/core/extrafieldsinexport.inc.php';
-		//$this->export_dependencies_array[$r] = array('myobjectline'=>array('tl.rowid','tl.ref')); // To force to activate one or several fields if we select some fields that need same (like to select a unique key if we ask a field of a child to avoid the DISTINCT to discard them, or for computed field than need several other fields)
-		//$this->export_special_array[$r] = array('t.field'=>'...');
-		//$this->export_examplevalues_array[$r] = array('t.field'=>'Example');
-		//$this->export_help_array[$r] = array('t.field'=>'FieldDescHelp');
-		$this->export_sql_start[$r]='SELECT DISTINCT ';
-		$this->export_sql_end[$r]  =' FROM '.MAIN_DB_PREFIX.'incident_myobject as t';
-		//$this->export_sql_end[$r]  .=' LEFT JOIN '.MAIN_DB_PREFIX.'incident_myobject_line as tl ON tl.fk_myobject = t.rowid';
-		$this->export_sql_end[$r] .=' WHERE 1 = 1';
-		$this->export_sql_end[$r] .=' AND t.entity IN ('.getEntity('myobject').')';
-		$r++; */
 		/* END MODULEBUILDER EXPORT MYOBJECT */
 
 		// Imports profiles provided by this module
 		$r = 1;
 		/* BEGIN MODULEBUILDER IMPORT MYOBJECT */
-		/*
-		$langs->load("incident@incident");
-		$this->import_code[$r] = $this->rights_class.'_'.$r;
-		$this->import_label[$r] = 'MyObjectLines';	// Translation key (used only if key ExportDataset_xxx_z not found)
-		$this->import_icon[$r] = $this->picto;
-		$this->import_tables_array[$r] = array('t' => MAIN_DB_PREFIX.'incident_myobject', 'extra' => MAIN_DB_PREFIX.'incident_myobject_extrafields');
-		$this->import_tables_creator_array[$r] = array('t' => 'fk_user_author'); // Fields to store import user id
-		$import_sample = array();
-		$keyforclass = 'MyObject'; $keyforclassfile='/incident/class/myobject.class.php'; $keyforelement='myobject@incident';
-		include DOL_DOCUMENT_ROOT.'/core/commonfieldsinimport.inc.php';
-		$import_extrafield_sample = array();
-		$keyforselect='myobject'; $keyforaliasextra='extra'; $keyforelement='myobject@incident';
-		include DOL_DOCUMENT_ROOT.'/core/extrafieldsinimport.inc.php';
-		$this->import_fieldshidden_array[$r] = array('extra.fk_object' => 'lastrowid-'.MAIN_DB_PREFIX.'incident_myobject');
-		$this->import_regex_array[$r] = array();
-		$this->import_examplevalues_array[$r] = array_merge($import_sample, $import_extrafield_sample);
-		$this->import_updatekeys_array[$r] = array('t.ref' => 'Ref');
-		$this->import_convertvalue_array[$r] = array(
-			't.ref' => array(
-				'rule'=>'getrefifauto',
-				'class'=>(!getDolGlobalString('INCIDENT_MYOBJECT_ADDON') ? 'mod_myobject_standard' : getDolGlobalString('INCIDENT_MYOBJECT_ADDON')),
-				'path'=>"/core/modules/incident/".(!getDolGlobalString('INCIDENT_MYOBJECT_ADDON') ? 'mod_myobject_standard' : getDolGlobalString('INCIDENT_MYOBJECT_ADDON')).'.php',
-				'classobject'=>'MyObject',
-				'pathobject'=>'/incident/class/myobject.class.php',
-			),
-			't.fk_soc' => array('rule' => 'fetchidfromref', 'file' => '/societe/class/societe.class.php', 'class' => 'Societe', 'method' => 'fetch', 'element' => 'ThirdParty'),
-			't.fk_user_valid' => array('rule' => 'fetchidfromref', 'file' => '/user/class/user.class.php', 'class' => 'User', 'method' => 'fetch', 'element' => 'user'),
-			't.fk_mode_reglement' => array('rule' => 'fetchidfromcodeorlabel', 'file' => '/compta/paiement/class/cpaiement.class.php', 'class' => 'Cpaiement', 'method' => 'fetch', 'element' => 'cpayment'),
-		);
-		$this->import_run_sql_after_array[$r] = array();
-		$r++; */
 		/* END MODULEBUILDER IMPORT MYOBJECT */
 	}
 
@@ -488,16 +479,16 @@ class modIncident extends DolibarrModules
 		// Document templates
 		$moduledir = dol_sanitizeFileName('incident');
 		$myTmpObjects = array();
-		$myTmpObjects['MyObject'] = array('includerefgeneration'=>0, 'includedocgeneration'=>0);
+		$myTmpObjects['Incident'] = array('includerefgeneration'=>0, 'includedocgeneration'=>0);
 
 		foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
-			if ($myTmpObjectKey == 'MyObject') {
+			if ($myTmpObjectKey == 'Incident') {
 				continue;
 			}
 			if ($myTmpObjectArray['includerefgeneration']) {
-				$src = DOL_DOCUMENT_ROOT.'/install/doctemplates/'.$moduledir.'/template_myobjects.odt';
+				$src = DOL_DOCUMENT_ROOT.'/install/doctemplates/'.$moduledir.'/template_incidents.odt';
 				$dirodt = DOL_DATA_ROOT.'/doctemplates/'.$moduledir;
-				$dest = $dirodt.'/template_myobjects.odt';
+				$dest = $dirodt.'/template_incidents.odt';
 
 				if (file_exists($src) && !file_exists($dest)) {
 					require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
