@@ -378,7 +378,7 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 	$titleTabFicheHead = 		$TObjectConfig['titleTabFicheHead'] ?? '';
 	$nameLibPhp = 				$TObjectConfig['nameLibPhp'] ?? '';
 	$picto = 					$TObjectConfig['picto'] ?? '';
-	$passListPhp = 				$TObjectConfig['passListPhp'] ?? '';
+	$pathListPhp = 				$TObjectConfig['pathListPhp'] ?? '';
 	$namePrepareHead = 			$TObjectConfig['namePrepareHead'] ?? '';
 	$libFile = '/core/lib/'.$nameLibPhp.'.lib.php';
 	$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
@@ -400,7 +400,7 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 		$soc = new Societe($db);
 	}
 
-	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$passListPhp.'list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$pathListPhp.'list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 // Ref customer
