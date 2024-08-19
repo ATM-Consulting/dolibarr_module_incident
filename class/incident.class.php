@@ -1522,7 +1522,7 @@ class Incident extends CommonObject
 				'titleTabFicheHead' 	=> $TObjectConfig[0],
 				'nameLibPhp' 			=> $TObjectConfig[1],
 				'picto' 				=> $TObjectConfig[2],
-				'passListPhp' 			=> $TObjectConfig[3],
+				'pathListPhp' 			=> $TObjectConfig[3],
 				'namePrepareHead' 		=> $TObjectConfig[4],
 			];
 		}
