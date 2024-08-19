@@ -1516,6 +1516,16 @@ class Incident extends CommonObject
 			Ticket::class => 				['Ticket', $type, 'ticket', $rootElement, $labelLibFunc],
 			Agsession::class => 			['AgfSessionDetail', 'agefodd', 'calendarday', $rootElement, $labelLibFunc],
 		];
+
+		foreach ($TTitleAndPictoTabAndDir as $class => $TObjectConfig) {
+			$TTitleAndPictoTabAndDir[$class] = [
+				'titleTabFicheHead' 	=> $TObjectConfig[0],
+				'nameLibPhp' 			=> $TObjectConfig[1],
+				'picto' 				=> $TObjectConfig[2],
+				'passListPhp' 			=> $TObjectConfig[3],
+				'namePrepareHead' 		=> $TObjectConfig[4],
+			];
+		}
 		return $TTitleAndPictoTabAndDir[$class];
 	}
 

@@ -229,25 +229,25 @@ if ($action == 'create') {
 			$rootElement = str_replace('class', '', $TElementProperties['classpath']);
 			$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
 			if (!empty($TObjectConfig)){
-				$labelTab = 	$TObjectConfig[0] ?? '';
-				$labelLib = 	$TObjectConfig[1] ?? '';
-				$labelPicto = 	$TObjectConfig[2] ?? '';
-				$labelLibFunc = $TObjectConfig[4] ?? '';
+				$titleTabFicheHead = 	$TObjectConfig['titleTabFicheHead'] ?? '';
+				$nameLibPhp = 			$TObjectConfig['nameLibPhp'] ?? '';
+				$picto = 				$TObjectConfig['picto'] ?? '';
+				$namePrepareHead = 		$TObjectConfig['namePrepareHead'] ?? '';
 				$res = file_exists(DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php');
 				if ($res) require_once DOL_DOCUMENT_ROOT.'/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php';
 				else dol_include_once('/'.$TElementProperties['classpath'].'/'.$TElementProperties['classfile'].'.class.php');
 
 
-				$libFile = '/core/lib/'.$labelLib.'.lib.php';
+				$libFile = '/core/lib/'.$nameLibPhp.'.lib.php';
 				$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
 				if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
-				elseif($labelLib = 'agefodd') dol_include_once('agefodd/lib/'.$labelLib.'.lib.php');
+				elseif($nameLibPhp = 'agefodd') dol_include_once('agefodd/lib/'.$nameLibPhp.'.lib.php');
 				else dol_include_once($libFile);
 
-				$res = $prepareHeadFunction = $labelLibFunc .'_prepare_head';
+				$res = $prepareHeadFunction = $namePrepareHead .'_prepare_head';
 				if ($res) {
 					$head = $prepareHeadFunction($originObject);
-					print dol_get_fiche_head($head, 'incident', $labelTab, -1, $labelPicto);
+					print dol_get_fiche_head($head, 'incident', $titleTabFicheHead, -1, $picto);
 				}
 			}
 		}else{

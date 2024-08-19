@@ -375,22 +375,22 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 	$rootElement = str_replace('class', '', $TElementProperties['classpath']);
 	$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
 
-	$labelTab = 		$TObjectConfig[0] ?? '';
-	$labelLib = 		$TObjectConfig[1] ?? '';
-	$labelPicto = 		$TObjectConfig[2] ?? '';
-	$rootReturnList = 	$TObjectConfig[3] ?? '';
-	$labelLibFunc = 	$TObjectConfig[4] ?? '';
-	$libFile = '/core/lib/'.$labelLib.'.lib.php';
+	$titleTabFicheHead = 		$TObjectConfig['titleTabFicheHead'] ?? '';
+	$nameLibPhp = 				$TObjectConfig['nameLibPhp'] ?? '';
+	$picto = 					$TObjectConfig['picto'] ?? '';
+	$passListPhp = 				$TObjectConfig['passListPhp'] ?? '';
+	$namePrepareHead = 			$TObjectConfig['namePrepareHead'] ?? '';
+	$libFile = '/core/lib/'.$nameLibPhp.'.lib.php';
 	$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
 	if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
-	elseif($labelLib == 'agefodd') dol_include_once('agefodd/lib/'.$labelLib.'.lib.php');
+	elseif($nameLibPhp == 'agefodd') dol_include_once('agefodd/lib/'.$nameLibPhp.'.lib.php');
 	else dol_include_once($libFile);
 
-	$prepareHeadFunction = $labelLibFunc .'_prepare_head';
+	$prepareHeadFunction = $namePrepareHead .'_prepare_head';
 	$res = function_exists( $prepareHeadFunction);
 	if ($res) {
 		$head = $prepareHeadFunction($originObject);
-		print dol_get_fiche_head($head, 'incident', $labelTab, -1, $labelPicto);
+		print dol_get_fiche_head($head, 'incident', $titleTabFicheHead, -1, $picto);
 	}
 
 	$originObject->fetch_thirdparty();
@@ -400,7 +400,7 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 		$soc = new Societe($db);
 	}
 
-	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$rootReturnList.'list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$passListPhp.'list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 // Ref customer
