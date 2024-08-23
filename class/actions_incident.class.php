@@ -80,21 +80,22 @@ class ActionsIncident extends CommonHookActions
 	 */
 	public function completeTabsHead(&$parameters, &$object, &$action, $hookmanager)
 	{
-		foreach ($parameters['head'] as $h => $headV) if(!empty($headV) && $headV[2] == 'incident'){
-			$nbRules = 0;
-			$sql = 'SELECT COUNT(*) as nbRules FROM ' . MAIN_DB_PREFIX.'incident_incident drule WHERE element_type = "'.$object->element.'" AND fk_element = ' . intval($object->id);
-			$resql = $object->db->query($sql);
-			if ($resql > 0){
-				$obj = $object->db->fetch_object($resql);
-				$nbRules = $obj->nbRules;
+		if (!isset($object->tabHeadLoaded)){
+			foreach ($parameters['head'] as $h => $headV) if(!empty($headV) && $headV[2] == 'incident'){
+				$nbRules = 0;
+				$sql = 'SELECT COUNT(*) as nbRules FROM ' . MAIN_DB_PREFIX.'incident_incident drule WHERE element_type = "'.$object->element.'" AND fk_element = ' . intval($object->id);
+				$resql = $object->db->query($sql);
+				if ($resql > 0){
+					$obj = $object->db->fetch_object($resql);
+					$nbRules = $obj->nbRules;
+				}
+				if ($nbRules > 0) {
+					$parameters['head'][$h][1] = $parameters['head'][$h][1]  . ' <span class="badge">' . $nbRules . '</span>';
+					$object->tabHeadLoaded = 1;
+					break;
+				}
 			}
-			if ($nbRules > 0) {
-				$parameters['head'][$h][1] .= ' <span class="badge">' . ($nbRules) . '</span>';
-			}
-			break;
-
 		}
 		return 0;
 	}
-
 }

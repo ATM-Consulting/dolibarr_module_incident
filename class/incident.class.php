@@ -1526,7 +1526,7 @@ class Incident extends CommonObject
 				'namePrepareHead' 		=> $TObjectConfig[4],
 			];
 		}
-		return $TTitleAndPictoTabAndDir[$class];
+		return $TTitleAndPictoTabAndDir;
 	}
 
 	/**

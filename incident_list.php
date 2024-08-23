@@ -374,20 +374,24 @@ if (!empty($TElementProperties) &&!empty($originObject) && !empty($type) && !emp
 
 	$rootElement = str_replace('class', '', $TElementProperties['classpath']);
 	$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
+	$TObjectConfig = $TObjectConfig[get_class($originObject)];
 
 	$titleTabFicheHead = 		$TObjectConfig['titleTabFicheHead'] ?? '';
 	$nameLibPhp = 				$TObjectConfig['nameLibPhp'] ?? '';
 	$picto = 					$TObjectConfig['picto'] ?? '';
 	$pathListPhp = 				$TObjectConfig['pathListPhp'] ?? '';
 	$namePrepareHead = 			$TObjectConfig['namePrepareHead'] ?? '';
+
 	$libFile = '/core/lib/'.$nameLibPhp.'.lib.php';
 	$res = file_exists(DOL_DOCUMENT_ROOT . $libFile);
+
 	if ($res) include_once DOL_DOCUMENT_ROOT .$libFile;
-	elseif($nameLibPhp == 'agefodd') dol_include_once('agefodd/lib/'.$nameLibPhp.'.lib.php');
+	if($nameLibPhp == 'agefodd') dol_include_once('agefodd/lib/'.$nameLibPhp.'.lib.php');
 	else dol_include_once($libFile);
 
 	$prepareHeadFunction = $namePrepareHead .'_prepare_head';
 	$res = function_exists( $prepareHeadFunction);
+
 	if ($res) {
 		$head = $prepareHeadFunction($originObject);
 		print dol_get_fiche_head($head, 'incident', $titleTabFicheHead, -1, $picto);
