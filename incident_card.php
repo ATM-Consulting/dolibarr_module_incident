@@ -228,6 +228,7 @@ if ($action == 'create') {
 		if (is_object($originObject)) {
 			$rootElement = str_replace('class', '', $TElementProperties['classpath']);
 			$TObjectConfig = Incident::returnArrayObjectConfig(get_class($originObject), $type, $originObject, $rootElement);
+			$TObjectConfig = $TObjectConfig[get_class($originObject)];
 			if (!empty($TObjectConfig)){
 				$titleTabFicheHead = 	$TObjectConfig['titleTabFicheHead'] ?? '';
 				$nameLibPhp = 			$TObjectConfig['nameLibPhp'] ?? '';
